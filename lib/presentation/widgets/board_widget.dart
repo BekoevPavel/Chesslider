@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chesslider_beta0/bloc/game_cubit.dart';
-import 'package:flutter_chesslider_beta0/entities/figure_entity.dart';
-import 'package:flutter_chesslider_beta0/states/board_state.dart';
-import 'package:flutter_chesslider_beta0/widgets/figure_widget.dart';
-import 'package:flutter_chesslider_beta0/widgets/step_widget.dart';
+import 'package:flutter_chesslider_beta0/core/lib/core.dart';
+import 'package:flutter_chesslider_beta0/presentation/bloc/game_cubit.dart';
+import 'package:flutter_chesslider_beta0/presentation/states/board_controller.dart';
+import 'package:flutter_chesslider_beta0/presentation/widgets/step_widget.dart';
+
+import 'figure_widget.dart';
 
 LabeledGlobalKey board_key = LabeledGlobalKey('board_key');
 
@@ -58,38 +59,39 @@ class BoardWidget extends StatelessWidget {
     final cell = boardWidth / 8;
     double figureSize = 24.0;
 
-    BoardController boardController =
-        BoardController(boardWidth: boardWidth, figureSize: 24);
+    // BoardController boardController =
+    //     BoardController(boardWidth: boardWidth, figureSize: 24);
 
     double step = (cell - figureSize) / 2;
     return BlocBuilder<GameCubit, GameState>(
       builder: (context, state) {
         if (state is LoadedGame) {
-          print(
-              'state: ${state} lenght stes: ${state.boardController.steps.length}');
+
           return Stack(
             children: [
               // My figure
-              for (int i = 0; i < 8; i++)
+              for (int i = 0; i < state.boardController.myFigures.length; i++)
                 Positioned(
-                  left: boardController.myFigures[i].figureCoordinaties.x,
-                  top: boardController.myFigures[i].figureCoordinaties.y,
+                  left: state.boardController.myFigures[i].figureCoordinaties.x,
+                  top: state.boardController.myFigures[i].figureCoordinaties.y,
                   child:
-                      FigureWidget(figureEntity: boardController.myFigures[i]),
+                      FigureWidget(figureEntity: state.boardController.myFigures[i]),
                 ),
               // Other figure
-              for (int i = 0; i < 8; i++)
+              for (int i = 0; i < state.boardController.otherFigures.length; i++)
                 Positioned(
-                  left: boardController.otherFigures[i].figureCoordinaties.x,
-                  top: boardController.otherFigures[i].figureCoordinaties.y,
+                  left: state.boardController.otherFigures[i].figureCoordinaties.x,
+                  top: state.boardController.otherFigures[i].figureCoordinaties.y,
                   child: FigureWidget(
-                      figureEntity: boardController.otherFigures[i]),
+                      figureEntity: state.boardController.otherFigures[i]),
                 ),
               for (int i = 0; i < state.boardController.steps.length; i++)
                 Positioned(
                   left: state.boardController.steps[i].coordinatiesEntity.x,
                   top: state.boardController.steps[i].coordinatiesEntity.y,
-                  child: StepWidget(cellWidth: cell),
+                  child: StepWidget(
+                      cellWidth: cell,
+                      stepEntity: state.boardController.steps[i]),
                 ),
             ],
           );
@@ -116,6 +118,7 @@ class BoardPainter extends CustomPainter {
   double boardWidth;
 
   BoardPainter({required this.boardWidth});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()

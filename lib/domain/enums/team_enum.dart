@@ -1,0 +1,4 @@
+enum TeamEnum {
+  white,
+  black
+}
