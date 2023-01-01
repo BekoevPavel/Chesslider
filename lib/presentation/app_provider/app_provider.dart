@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
-import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_cubit.dart';
+import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_bloc.dart';
 
-import '../bloc/game_cubit.dart';
+import '../game/bloc/game_cubit.dart';
+import '../splash/bloc/splash_bloc.dart';
 
 class AppProvider extends StatelessWidget {
   final Widget child;
@@ -18,7 +19,10 @@ class AppProvider extends StatelessWidget {
       ),
       BlocProvider(
         create: ((context) => GameCubit()),
-      )
+      ),
+      BlocProvider(
+        create: (context) => SplashBloc(injection(),injection())..add(SplashEvent()),
+      ),
     ], child: child);
   }
 }

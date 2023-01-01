@@ -11,7 +11,8 @@ class AppDependencies {
 
   Future<void> setDependencies() async {
     final AuthRepository authRepository = AuthRepositoryImpl();
-
+    final GameRepository gameRepository = GameRepositoryImpl();
     injection.registerLazySingleton<AuthRepository>(() => authRepository);
+    injection.registerLazySingleton<GameRepository>(() => gameRepository);
   }
 }

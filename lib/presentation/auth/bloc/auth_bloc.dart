@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_event.dart';
@@ -19,27 +20,30 @@ class AuthBloc extends BaseBloc<AuthEvent, AuthState> {
     on<AuthSignOut>(_signOut);
   }
 
-  FutureOr<void> _signUp(event, Emitter<AuthState> emit) async {
-    emit(state.copyWith(status: BaseStatus.loading));
+  FutureOr<void> _signUp(AuthSignUp event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(
+        status: BaseStatus.loading, navigate: AuthNavigate.registration));
     try {
-      _authRepository.singUp(
+      await _authRepository.singUp(
           email: event.email,
-          userName: event.userName,
+          userName: event.username,
           password: event.password);
       emit(state.copyWith(
           navigate: AuthNavigate.menu, status: BaseStatus.success));
-    } catch (error, stackTrace) {
+    } on FirebaseAuthException catch (error, stackTrace) {
       handleError(error, stackTrace, emit);
     }
   }
 
-  FutureOr<void> _signIn(event, Emitter<AuthState> emit) async {
-    emit(state.copyWith(status: BaseStatus.loading));
+  FutureOr<void> _signIn(AuthSignIn event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(
+        status: BaseStatus.loading, navigate: AuthNavigate.localAuth));
     try {
-      _authRepository.singIn(email: event.email, password: event.password);
+      await _authRepository.singIn(
+          email: event.email, password: event.password);
       emit(state.copyWith(
           navigate: AuthNavigate.menu, status: BaseStatus.success));
-    } catch (error, stackTrace) {
+    } on FirebaseAuthException catch (error, stackTrace) {
       handleError(error, stackTrace, emit);
     }
   }

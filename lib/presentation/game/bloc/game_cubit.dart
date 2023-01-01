@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/figure_position_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/step_entity.dart';
-import 'package:flutter_chesslider_beta0/presentation/states/board_controller.dart';
+import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 
-import '../../domain/entities/figure_entity.dart';
-import '../../domain/enums/team_enum.dart';
+import '../../../domain/entities/figure_entity.dart';
+import '../../../domain/enums/team_enum.dart';
 
 class GameState {}
 

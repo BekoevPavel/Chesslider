@@ -3,10 +3,10 @@ import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/figure_position_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
-import 'package:flutter_chesslider_beta0/presentation/states/refery.dart';
+import 'package:flutter_chesslider_beta0/presentation/game/states/refery.dart';
 
-import '../../domain/entities/figure_entity.dart';
-import '../../domain/entities/step_entity.dart';
+import '../../../domain/entities/figure_entity.dart';
+import '../../../domain/entities/step_entity.dart';
 
 class BoardController {
   double boardWidth;

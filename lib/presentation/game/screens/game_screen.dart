@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_chesslider_beta0/presentation/widgets/board_widget.dart';
+import 'package:flutter_chesslider_beta0/presentation/game/widgets/board_widget.dart';
 
 class GameScreen extends StatelessWidget {
   const GameScreen({super.key});

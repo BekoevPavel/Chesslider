@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
-import 'package:flutter_chesslider_beta0/presentation/bloc/game_cubit.dart';
-import 'package:flutter_chesslider_beta0/presentation/states/board_controller.dart';
-import 'package:flutter_chesslider_beta0/presentation/widgets/step_widget.dart';
+import 'package:flutter_chesslider_beta0/presentation/game/bloc/game_cubit.dart';
+import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
+import 'package:flutter_chesslider_beta0/presentation/game/widgets/step_widget.dart';
 
 import 'figure_widget.dart';
+
 
 LabeledGlobalKey board_key = LabeledGlobalKey('board_key');
 

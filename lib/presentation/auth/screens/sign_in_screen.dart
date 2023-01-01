@@ -1,29 +1,30 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_event.dart';
 
-
-import '../bloc/auth_cubit.dart';
-import '../bloc/auth_event.dart';
+import '../../router/app_router.dart';
+import '../bloc/auth_bloc.dart';
 import '../bloc/auth_state.dart';
-import 'sign_in_screen.dart';
+import 'sign_up_screen.dart';
 
-class SignUpScreen extends StatefulWidget {
-  static const String id = 'sign_up_screen';
-  const SignUpScreen({Key? key}) : super(key: key);
+class SignInScreen extends StatefulWidget {
+  static const String id = 'sign_in_screen';
+
+  const SignInScreen({Key? key}) : super(key: key);
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   String email = '';
   String userName = '';
   String password = '';
 
   final FocusNode _passwordFocusNode = FocusNode();
-  final FocusNode _userNameFocusNode = FocusNode();
 
   void _submit(BuildContext context) {
     FocusScope.of(context).unfocus();
@@ -32,9 +33,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
     _formKey.currentState!.save();
-    context
-        .read<AuthBloc>()
-        .add(AuthSignUp(email: email, username: userName, password: password));
+    context.read<AuthBloc>().add(AuthSignIn(email: email, password: password));
   }
 
   @override
@@ -42,9 +41,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (prevState, currentState) {
-          if (currentState is AuthSignUp) {
+          print(currentState.navigate);
+          print(currentState.status);
+          if (currentState.success &&
+              currentState.navigate == AuthNavigate.menu) {
+            context.router.replace(const HomeRoute());
+          }
+          if (currentState is AuthSignIn) {
+            // print('next window');
             //context.read<CalendarCubit>().updateMonth(DateTime.now().month);
-           // Navigator.of(context).pushReplacementNamed(MainCalendarPage.id);
+            // Navigator.of(context).pushReplacementNamed(MainCalendarPage.id);
           }
           // if (currentState is AuthFailure) {
           //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -71,10 +77,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 18),
-                          child: Text('Why Do I Stay Awake Night',
-                              style: Theme.of(context).textTheme.headline1),
+                          child: Text('ChesSlider',
+                              style: Theme.of(context).textTheme.headline3),
                         ),
-
                         const SizedBox(
                           height: 15,
                         ),
@@ -85,35 +90,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           },
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'Please Enter your email';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (_) {
-                            FocusScope.of(context)
-                                .requestFocus(_userNameFocusNode);
-                          },
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Enter your email',
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.black),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        //username
-                        TextFormField(
-                          textInputAction: TextInputAction.next,
-                          focusNode: _userNameFocusNode,
-                          onSaved: (value) {
-                            userName = value!.trim();
-                          },
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Please Enter your username';
+                              return 'Введите свой email';
                             }
                             return null;
                           },
@@ -123,7 +100,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           },
                           keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
-                            labelText: 'Enter your username',
+                            labelText: 'Введите свой email',
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Colors.black),
                             ),
@@ -132,6 +109,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         const SizedBox(
                           height: 15,
                         ),
+
                         //password
                         TextFormField(
                           textInputAction: TextInputAction.done,
@@ -141,20 +119,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           },
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'Please Enter your password';
+                              return 'Введите свой пароль';
                             }
                             if (value.length < 5) {
-                              return 'Please Enter longer password';
+                              return 'Слишком короткий пароль';
                             }
                             return null;
                           },
-                          obscureText: true, // only for password
+                          obscureText: true,
+                          // only for password
                           onFieldSubmitted: (_) {
                             _submit(context);
                           },
                           keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
-                            labelText: 'Enter your password',
+                            labelText: 'Введите свой пароль',
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(color: Colors.black),
                             ),
@@ -167,14 +146,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           onPressed: () {
                             _submit(context);
                           },
-                          child: const Text('Sign Up'),
+                          child: const Text('Войти'),
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context)
-                                .pushReplacementNamed(SignInScreen.id);
+                            _submit(context);
+                            context.router.replace(const SignUpRoute());
+                            ;
                           },
-                          child: const Text('Sign In instead'),
+                          child: const Text('Зарегистрироваться'),
                         ),
                       ],
                     ),

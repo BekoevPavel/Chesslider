@@ -5,9 +5,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_chesslider_beta0/data/repositories/auth_repository_impl.dart';
+import 'package:flutter_chesslider_beta0/data/repositories/game_repository_impl.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/step_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/auth_repository.dart';
+import 'package:flutter_chesslider_beta0/domain/repositories/game_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
-// part of 'auth_cubit.dart';
+// part of 'auth_bloc.dart';
 
 class AuthState extends BaseState {
   final AuthNavigate? navigate;
@@ -18,7 +18,7 @@ class AuthState extends BaseState {
   }
 }
 
-enum AuthNavigate { localAuth, registration, menu }
+enum AuthNavigate {splash, localAuth, registration, menu }
 
 // abstract class AuthState extends  BaseState {
 //   AuthState({required super.status});

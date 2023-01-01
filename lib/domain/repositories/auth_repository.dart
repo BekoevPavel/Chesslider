@@ -3,15 +3,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/lib/core.dart';
 
 abstract class AuthRepository {
-  Future<AuthFailure?> singIn(
+  Future<void> singIn(
       {required String email, required String password});
 
-  Future<AuthFailure?> singUp(
+  Future<void> singUp(
       {required String email,
       required String userName,
       required String password});
 
-  Future<AuthFailure?> singOut();
+  Future<void> singOut();
+
+  Stream<bool> checkAuthState();
+
+
 
 // Future<void> addPost(
 //     {required String descriptoin,
