@@ -15,7 +15,6 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<SplashBloc, SplashState>(
       listener: (context, state) {
-        print('state: ${state.navigate}');
         if (state.navigate == AuthNavigate.menu) {
           context.router.replace(const HomeRoute());
         } else {

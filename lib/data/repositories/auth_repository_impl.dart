@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/game_search.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/network_status.dart';
 
@@ -70,5 +71,24 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       yield false;
     }
+  }
+
+  @override
+  Future<PlayerEntity> getPlayer1() async {
+    // TODO: implement getPlayer1
+    final myID = FirebaseAuth.instance.currentUser!.uid;
+    var fire = FirebaseFirestore.instance
+        .collection('users')
+        .where('userID1', isEqualTo: myID);
+
+    await for (var players in fire.snapshots()) {
+      if (players.docs.isNotEmpty) {
+        for (var p in players.docs) {
+          print('p: ${p.data()}');
+          return PlayerEntity.fromFirebase(p.data());
+        }
+      }
+    }
+    throw UnimplementedError();
   }
 }

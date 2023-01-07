@@ -6,6 +6,7 @@ import 'package:flutter_chesslider_beta0/presentation/splash/screens/splash_scre
 
 import '../auth/screens/sign_in_screen.dart';
 import '../game/screens/game_screen.dart';
+import '../home/create_room_screen.dart';
 
 part 'app_router.gr.dart';
 
@@ -18,6 +19,7 @@ part 'app_router.gr.dart';
       AutoRoute(page: SignInScreen),
       AutoRoute(page: SignUpScreen),
       AutoRoute(page: GameScreen),
+      AutoRoute(page: CreateRoomScreen),
     ])
 class AppRouter extends _$AppRouter {
   factory AppRouter() => _instance;

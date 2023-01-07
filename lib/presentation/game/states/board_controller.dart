@@ -13,11 +13,13 @@ class BoardController {
   late double cell;
   double figureSize;
   late double step;
+  bool multiplayer = true;
+  TeamEnum myTeam = TeamEnum.white;
 
   Refery refery = Refery();
 
-  List<FigureEntity> myFigures = [];
-  List<FigureEntity> otherFigures = [];
+  List<FigureEntity> whiteFigures = [];
+  List<FigureEntity> blackFigures = [];
 
   List<StepEntity> steps = [];
 
@@ -34,11 +36,11 @@ class BoardController {
     step.selectedFigure.figureCoordinaties.y = _calculeCoordinate(step.y);
     step.selectedFigure.countSteps++;
 
-    bool foundInMyFigures = myFigures
+    bool foundInMyFigures = whiteFigures
         .where((element) => element.id == step.selectedFigure.id)
         .isNotEmpty;
     if (step.canKill == true) {
-      myFigures.removeWhere(
+      whiteFigures.removeWhere(
         (element) {
           if ((element.y == step.y && element.x == step.x) &&
               step.selectedFigure.team != element.team) {
@@ -48,7 +50,7 @@ class BoardController {
           return false;
         },
       );
-      otherFigures.removeWhere(
+      blackFigures.removeWhere(
         (element) {
           if (element.y == step.y &&
               element.x == step.x &&
@@ -61,13 +63,13 @@ class BoardController {
       );
     }
 
-    myFigures.removeWhere((element) => element.id == step.selectedFigure.id);
-    otherFigures.removeWhere((element) => element.id == step.selectedFigure.id);
+    whiteFigures.removeWhere((element) => element.id == step.selectedFigure.id);
+    blackFigures.removeWhere((element) => element.id == step.selectedFigure.id);
 
     if (foundInMyFigures) {
-      myFigures.add(step.selectedFigure);
+      whiteFigures.add(step.selectedFigure);
     } else {
-      otherFigures.add(step.selectedFigure);
+      blackFigures.add(step.selectedFigure);
     }
     steps.clear();
   }
@@ -114,7 +116,7 @@ class BoardController {
             x: i,
             y: 0,
             team: TeamEnum.white);
-        myFigures.add(figure);
+        whiteFigures.add(figure);
       }
       // myFigures[2].y = 2;
       // myFigures[2].figureCoordinaties.y = _calculeCoordinate(myFigures[2].y);
@@ -139,7 +141,7 @@ class BoardController {
             x: i,
             y: 7,
             team: TeamEnum.black);
-        otherFigures.add(figure);
+        blackFigures.add(figure);
       }
     } catch (e) {
       throw Exception(e.toString());

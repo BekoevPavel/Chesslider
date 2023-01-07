@@ -29,30 +29,6 @@ void main() async {
     await Firebase.initializeApp();
   }
 
-  // try {
-  //   final credential =
-  //       await FirebaseAuth.instance.createUserWithEmailAndPassword(
-  //     email: 'pablank132@bk.ru',
-  //     password: '12345678',
-  //   );
-  //   await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(credential.user!.uid)
-  //       .set({
-  //     'userID': credential.user!.uid,
-  //     'email': credential.user!.email,
-  //     'username': 'Pavel',
-  //   });
-  // } on FirebaseAuthException catch (e) {
-  //   if (e.code == 'weak-password') {
-  //     print('The password provided is too weak.');
-  //   } else if (e.code == 'email-already-in-use') {
-  //     print('The account already exists for that email.');
-  //   }
-  // } catch (e) {
-  //   print('reeriir $e');
-  // }
-
   runApp(const MyApp());
 
   AutoRouterDelegate(

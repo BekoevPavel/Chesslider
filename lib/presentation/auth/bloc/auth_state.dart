@@ -18,7 +18,7 @@ class AuthState extends BaseState {
   }
 }
 
-enum AuthNavigate {splash, localAuth, registration, menu }
+enum AuthNavigate {splash, localAuth, registration, menu, game }
 
 // abstract class AuthState extends  BaseState {
 //   AuthState({required super.status});

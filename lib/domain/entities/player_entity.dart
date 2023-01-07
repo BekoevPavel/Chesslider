@@ -23,6 +23,8 @@ class PlayerEntity {
       required this.networkStatus,
       required this.rating});
 
+
+
   factory PlayerEntity.fromFirebase(Map<String, dynamic> data) {
     GameSearch gameSearch;
     NetworkStatus networkStatus;

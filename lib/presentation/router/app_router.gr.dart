@@ -62,6 +62,15 @@ class _$AppRouter extends RootStackRouter {
         barrierDismissible: false,
       );
     },
+    CreateRoomRoute.name: (routeData) {
+      return CustomPage<dynamic>(
+        routeData: routeData,
+        child: const CreateRoomScreen(),
+        transitionsBuilder: TransitionsBuilders.fadeIn,
+        opaque: true,
+        barrierDismissible: false,
+      );
+    },
   };
 
   @override
@@ -85,6 +94,10 @@ class _$AppRouter extends RootStackRouter {
         RouteConfig(
           GameRoute.name,
           path: '/game-screen',
+        ),
+        RouteConfig(
+          CreateRoomRoute.name,
+          path: '/create-room-screen',
         ),
       ];
 }
@@ -147,4 +160,16 @@ class GameRoute extends PageRouteInfo<void> {
         );
 
   static const String name = 'GameRoute';
+}
+
+/// generated route for
+/// [CreateRoomScreen]
+class CreateRoomRoute extends PageRouteInfo<void> {
+  const CreateRoomRoute()
+      : super(
+          CreateRoomRoute.name,
+          path: '/create-room-screen',
+        );
+
+  static const String name = 'CreateRoomRoute';
 }

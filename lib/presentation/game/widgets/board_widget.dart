@@ -71,20 +71,20 @@ class BoardWidget extends StatelessWidget {
           return Stack(
             children: [
               // My figure
-              for (int i = 0; i < state.boardController.myFigures.length; i++)
+              for (int i = 0; i < state.boardController.whiteFigures.length; i++)
                 Positioned(
-                  left: state.boardController.myFigures[i].figureCoordinaties.x,
-                  top: state.boardController.myFigures[i].figureCoordinaties.y,
+                  left: state.boardController.whiteFigures[i].figureCoordinaties.x,
+                  top: state.boardController.whiteFigures[i].figureCoordinaties.y,
                   child:
-                      FigureWidget(figureEntity: state.boardController.myFigures[i]),
+                      FigureWidget(figureEntity: state.boardController.whiteFigures[i]),
                 ),
               // Other figure
-              for (int i = 0; i < state.boardController.otherFigures.length; i++)
+              for (int i = 0; i < state.boardController.blackFigures.length; i++)
                 Positioned(
-                  left: state.boardController.otherFigures[i].figureCoordinaties.x,
-                  top: state.boardController.otherFigures[i].figureCoordinaties.y,
+                  left: state.boardController.blackFigures[i].figureCoordinaties.x,
+                  top: state.boardController.blackFigures[i].figureCoordinaties.y,
                   child: FigureWidget(
-                      figureEntity: state.boardController.otherFigures[i]),
+                      figureEntity: state.boardController.blackFigures[i]),
                 ),
               for (int i = 0; i < state.boardController.steps.length; i++)
                 Positioned(

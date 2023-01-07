@@ -4,6 +4,8 @@ import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_bloc.dart';
 
 import '../game/bloc/game_cubit.dart';
+import '../home/bloc/home_bloc.dart';
+import '../home/bloc/home_event.dart';
 import '../splash/bloc/splash_bloc.dart';
 
 class AppProvider extends StatelessWidget {
@@ -18,10 +20,15 @@ class AppProvider extends StatelessWidget {
         create: (context) => AuthBloc(injection()),
       ),
       BlocProvider(
-        create: ((context) => GameCubit()),
+        create: ((context) => GameCubit(injection())),
       ),
       BlocProvider(
-        create: (context) => SplashBloc(injection(),injection())..add(SplashEvent()),
+        create: (context) =>
+            SplashBloc(injection(), injection())..add(SplashEvent()),
+      ),
+      BlocProvider(
+        create: (context) =>
+            HomeBloc(injection(), injection())..add(HomeFirstStart()),
       ),
     ], child: child);
   }
