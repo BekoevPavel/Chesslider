@@ -54,9 +54,14 @@ class _$AppRouter extends RootStackRouter {
       );
     },
     GameRoute.name: (routeData) {
+      final args = routeData.argsAs<GameRouteArgs>();
       return CustomPage<dynamic>(
         routeData: routeData,
-        child: const GameScreen(),
+        child: GameScreen(
+          key: args.key,
+          myTeam: args.myTeam,
+          gameType: args.gameType,
+        ),
         transitionsBuilder: TransitionsBuilders.fadeIn,
         opaque: true,
         barrierDismissible: false,
@@ -152,14 +157,41 @@ class SignUpRoute extends PageRouteInfo<void> {
 
 /// generated route for
 /// [GameScreen]
-class GameRoute extends PageRouteInfo<void> {
-  const GameRoute()
-      : super(
+class GameRoute extends PageRouteInfo<GameRouteArgs> {
+  GameRoute({
+    Key? key,
+    required TeamEnum myTeam,
+    required GameType gameType,
+  }) : super(
           GameRoute.name,
           path: '/game-screen',
+          args: GameRouteArgs(
+            key: key,
+            myTeam: myTeam,
+            gameType: gameType,
+          ),
         );
 
   static const String name = 'GameRoute';
+}
+
+class GameRouteArgs {
+  const GameRouteArgs({
+    this.key,
+    required this.myTeam,
+    required this.gameType,
+  });
+
+  final Key? key;
+
+  final TeamEnum myTeam;
+
+  final GameType gameType;
+
+  @override
+  String toString() {
+    return 'GameRouteArgs{key: $key, myTeam: $myTeam, gameType: $gameType}';
+  }
 }
 
 /// generated route for

@@ -15,15 +15,18 @@ class FigureEntity {
   Color color;
   Color borderColor;
   bool reachedTheEnd = false;
+  int weight;
 
-  FigureEntity(
-      {required this.id,
-      required this.value,
-      required this.x,
-      required this.y,
-      required this.figureCoordinaties,
-      required this.figurePosition,
-      required this.color,
-      required this.borderColor,
-      required this.team});
+  FigureEntity({
+    required this.id,
+    required this.value,
+    required this.x,
+    required this.y,
+    required this.figureCoordinaties,
+    required this.figurePosition,
+    required this.color,
+    required this.borderColor,
+    required this.team,
+    required this.weight,
+  });
 }

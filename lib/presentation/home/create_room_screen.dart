@@ -24,18 +24,25 @@ class CreateRoomScreen extends StatelessWidget {
       ),
       body: BlocListener<HomeBloc, HomeState>(
         listener: (context, state) {
+          print('state: $state');
           if (state.success && state.navigate == AuthNavigate.game) {
-            context.replaceRoute(const GameRoute());
+            context.replaceRoute(
+                GameRoute(myTeam: state.team, gameType: state.gameType));
           }
         },
         child: Column(
           children: [
             TextButton(
                 onPressed: () {
-                  _dialogBuilder(context);
+                  // _dialogBuilder(context);
+                  context.read<HomeBloc>().add(HomeCreateRoom());
                 },
                 child: const Text('Создать комнату')),
-            TextButton(onPressed: () {_dialogBuilderConnect(context);}, child: const Text('Присоединиться')),
+            TextButton(
+                onPressed: () {
+                  _dialogBuilderConnect(context);
+                },
+                child: const Text('Присоединиться')),
           ],
         ),
       ),
@@ -88,63 +95,6 @@ class CreateRoomScreen extends StatelessWidget {
               child: const Text('Присоединиться'),
               onPressed: () {
                 context.read<HomeBloc>().add(ConnectToRoom(_controller.text));
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _dialogBuilder(BuildContext context) {
-    TextEditingController _controller = TextEditingController();
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Создать комнату'),
-          content: Column(
-            children: [
-              TextFormField(
-                controller: _controller,
-                keyboardType: TextInputType.number,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: 'Введите пин-код',
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black),
-                  ),
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Введите свой пароль';
-                  }
-                  if (value.length < 5) {
-                    return 'Слишком короткий пароль';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Отмена'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                textStyle: Theme.of(context).textTheme.labelLarge,
-              ),
-              child: const Text('Создать'),
-              onPressed: () {
-                context.read<HomeBloc>().add(HomeCreateRoom());
                 Navigator.of(context).pop();
               },
             ),

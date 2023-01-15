@@ -1,13 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/room_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/step_entity.dart';
+import 'package:flutter_chesslider_beta0/domain/enums/network_status.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/game_repository.dart';
+import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
 import 'package:get_it/get_it.dart';
+import 'package:otp/otp.dart';
 
 import '../../domain/entities/player_entity.dart';
+import '../../domain/enums/game_search.dart';
+import '../../domain/enums/team_enum.dart';
 
 class GameRepositoryImpl extends GameRepository {
   @override
@@ -43,33 +49,12 @@ class GameRepositoryImpl extends GameRepository {
   }
 
   @override
-  Future<void> createRoom() async {
-    final credential = FirebaseAuth.instance.currentUser!;
-    final PlayerEntity myUser = GetIt.instance.get<List<PlayerEntity>>().first;
-    final room =
-        RoomEntity(id: credential.uid, players: [myUser], stepsPositions: []);
-
-    await FirebaseFirestore.instance
-        .collection('rooms')
-        .add(room.toFirebase())
-        .then((value) {
-      value.update({'id': value.id});
-      room.id = value.id;
-    });
-
-    GetIt.instance.get<List<RoomEntity>>().clear();
-    GetIt.instance.get<List<RoomEntity>>().addAll([room]);
-    print(
-        'create new room: ${GetIt.instance.get<List<RoomEntity>>().first.id}');
-  }
-
-  @override
   Future<void> addStep(step) async {
     CollectionReference rooms = FirebaseFirestore.instance.collection('rooms');
     RoomEntity room = GetIt.instance.get<List<RoomEntity>>().first;
 
     await rooms
-        .doc(room.id)
+        .doc(room.firebaseID)
         .update({
           'stepsPositions': [step.toFirebase()]
         })
@@ -81,6 +66,10 @@ class GameRepositoryImpl extends GameRepository {
 
   @override
   Stream<StepEntity> getLastStep() async* {
+  // BoardController _boardController = GetIt.instance.get<BoardController>();
+    // TeamEnum whoMove = _boardController.refery.whoseMove;
+    // final bool listenState = _boardController.myTeam == whoMove ? false : true;
+
     var ff = FirebaseFirestore.instance.collection('rooms').where('id',
         isEqualTo: GetIt.instance.get<List<RoomEntity>>().first.id);
 
@@ -94,38 +83,14 @@ class GameRepositoryImpl extends GameRepository {
   }
 
   @override
-  Future<RoomEntity> connectToRoom(String code) async {
-    final room =
-        await FirebaseFirestore.instance.collection('rooms').doc(code).get();
-
-    final PlayerEntity myUser = GetIt.instance.get<List<PlayerEntity>>().first;
-
-    late String enemyID;
-
-    enemyID = room.data()?['playersID'][0];
-    await FirebaseFirestore.instance.collection('rooms').doc(code).update({
-      'playersID': [enemyID, myUser.userID]
+  Future<void> updatePlayerInfo(PlayerEntity player) async {
+    FirebaseFirestore.instance.collection('users').doc(player.userID).update({
+      'winsCount': player.winsCount,
+      'lossCount': player.drawCount,
+      'drawsCount': player.lossCount,
+      'networkStatus': player.networkStatus.toFirebase,
+      'gameSearch': GameSearch.on.toFirebase,
+      'rating': player.rating,
     });
-
-    final data =
-        await FirebaseFirestore.instance.collection('users').doc(enemyID).get();
-    final enterData = data.data();
-    PlayerEntity player = PlayerEntity.fromFirebase(enterData!);
-
-    return RoomEntity(id: code, players: [myUser, player], stepsPositions: []);
-  }
-
-  @override
-  Future<void> exitFromRoom() async {
-    final localRoom = GetIt.instance.get<List<RoomEntity>>().first;
-
-    print('delete room: ${localRoom.id}');
-    //final room
-    await FirebaseFirestore.instance
-        .collection('rooms')
-        .doc(localRoom.id)
-        .delete();
-
-    //FirebaseFirestore.instance.collection('rooms').doc(room.id).update({'playersID': []});
   }
 }

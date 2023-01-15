@@ -4,6 +4,7 @@ import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_enti
 import 'package:flutter_chesslider_beta0/domain/entities/figure_position_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/states/refery.dart';
+import 'package:flutter_chesslider_beta0/resources/base_game_variable.dart';
 
 import '../../../domain/entities/figure_entity.dart';
 import '../../../domain/entities/step_entity.dart';
@@ -95,7 +96,8 @@ class BoardController {
     steps = newSteps;
   }
 
-  BoardController({required this.boardWidth, this.figureSize = 24}) {
+  BoardController(
+      {required this.boardWidth, this.figureSize = 24, required this.myTeam}) {
     cell = boardWidth / 8;
     step = (cell - figureSize) / 2;
     try {
@@ -103,6 +105,7 @@ class BoardController {
         var figure = FigureEntity(
             id: i,
             value: i + 1,
+            weight: BaseGameVariables.figureWeight(i + 1),
             borderColor: Colors.black,
             color: Colors.white,
             figureCoordinaties: CoordinatiesEntity(
@@ -128,6 +131,7 @@ class BoardController {
         var figure = FigureEntity(
             id: i + 8,
             value: i + 1,
+            weight: BaseGameVariables.figureWeight(i + 1),
             borderColor: Colors.white,
             color: Colors.black,
             figureCoordinaties: CoordinatiesEntity(
@@ -149,11 +153,11 @@ class BoardController {
   }
 
   double _calculeCoordinate(int pos) {
-    return (cell * pos + 1) + step;
+    return (cell * pos) ;
   }
 
   double _calculeCoordinateStep(int pos) {
-    return (cell * pos + 1);
+    return (cell * pos);
   }
 
   void moveFigure(FigureEntity figureEntity, int x, int y) {

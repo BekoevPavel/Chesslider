@@ -1,21 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
+import 'package:flutter_chesslider_beta0/domain/enums/game_type.dart';
+import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/bloc/game_cubit.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/widgets/step_widget.dart';
+import 'package:get_it/get_it.dart';
 
 import 'figure_widget.dart';
 
-
 LabeledGlobalKey board_key = LabeledGlobalKey('board_key');
 
-class BoardWidget extends StatelessWidget {
-  const BoardWidget({Key? key}) : super(key: key);
+class BoardWidget extends StatefulWidget {
+  final TeamEnum myTeam;
+  final GameType gameType;
+
+  const BoardWidget({Key? key, required this.myTeam, required this.gameType})
+      : super(key: key);
+
+  @override
+  State<BoardWidget> createState() => _BoardWidgetState();
+}
+
+class _BoardWidgetState extends State<BoardWidget> {
+  @override
+  void dispose() async {
+    // TODO: implement dispose
+    super.dispose();
+    await context.read<GameCubit>().disposeStream();
+  }
 
   @override
   Widget build(BuildContext context) {
     double padding = 28;
+
     return GestureDetector(
       onTapDown: (details) {},
       child: OrientationBuilder(builder: ((context, orientation) {
@@ -43,12 +62,14 @@ class BoardWidget extends StatelessWidget {
               }
               context
                   .read<GameCubit>()
-                  .startGame(snapshot.data! - (padding * 2));
+                  .startGame(snapshot.data! - (padding * 2), widget.myTeam);
               return CustomPaint(
-                  painter:
-                      BoardPainter(boardWidth: snapshot.data! - (padding * 2)),
-                  child: _generateFigures(
-                      boardWidth: snapshot.data! - (padding * 2)));
+                painter:
+                    BoardPainter(boardWidth: snapshot.data! - (padding * 2)),
+                child: _generateFigures(
+                  boardWidth: snapshot.data! - (padding * 2),
+                ),
+              );
             }),
           ),
         );
@@ -57,42 +78,44 @@ class BoardWidget extends StatelessWidget {
   }
 
   Widget _generateFigures({required double boardWidth}) {
+    BoardController boardController = GetIt.instance.get<BoardController>();
     final cell = boardWidth / 8;
     double figureSize = 24.0;
-
-    // BoardController boardController =
-    //     BoardController(boardWidth: boardWidth, figureSize: 24);
 
     double step = (cell - figureSize) / 2;
     return BlocBuilder<GameCubit, GameState>(
       builder: (context, state) {
         if (state is LoadedGame) {
-
           return Stack(
             children: [
               // My figure
-              for (int i = 0; i < state.boardController.whiteFigures.length; i++)
+              for (int i = 0; i < boardController.whiteFigures.length; i++)
                 Positioned(
-                  left: state.boardController.whiteFigures[i].figureCoordinaties.x,
-                  top: state.boardController.whiteFigures[i].figureCoordinaties.y,
-                  child:
-                      FigureWidget(figureEntity: state.boardController.whiteFigures[i]),
+                  left: boardController.whiteFigures[i].figureCoordinaties.x,
+                  top: boardController.whiteFigures[i].figureCoordinaties.y,
+                  child: FigureWidget(
+                      cellSize: cell,
+                      gameType: widget.gameType,
+                      myTeam: widget.myTeam,
+                      figureEntity: boardController.whiteFigures[i]),
                 ),
               // Other figure
-              for (int i = 0; i < state.boardController.blackFigures.length; i++)
+              for (int i = 0; i < boardController.blackFigures.length; i++)
                 Positioned(
-                  left: state.boardController.blackFigures[i].figureCoordinaties.x,
-                  top: state.boardController.blackFigures[i].figureCoordinaties.y,
+                  left: boardController.blackFigures[i].figureCoordinaties.x,
+                  top: boardController.blackFigures[i].figureCoordinaties.y,
                   child: FigureWidget(
-                      figureEntity: state.boardController.blackFigures[i]),
+                      cellSize: cell,
+                      gameType: widget.gameType,
+                      myTeam: widget.myTeam,
+                      figureEntity: boardController.blackFigures[i]),
                 ),
-              for (int i = 0; i < state.boardController.steps.length; i++)
+              for (int i = 0; i < boardController.steps.length; i++)
                 Positioned(
-                  left: state.boardController.steps[i].coordinatiesEntity.x,
-                  top: state.boardController.steps[i].coordinatiesEntity.y,
+                  left: boardController.steps[i].coordinatiesEntity.x,
+                  top: boardController.steps[i].coordinatiesEntity.y,
                   child: StepWidget(
-                      cellWidth: cell,
-                      stepEntity: state.boardController.steps[i]),
+                      cellWidth: cell, stepEntity: boardController.steps[i]),
                 ),
             ],
           );

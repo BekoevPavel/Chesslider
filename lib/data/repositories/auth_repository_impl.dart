@@ -21,12 +21,6 @@ class AuthRepositoryImpl implements AuthRepository {
     var doc = await users.doc(credential.user?.uid).get();
 
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-    //---
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(credential.user!.uid)
-        .update({'data': 'mydata'});
   }
 
   @override

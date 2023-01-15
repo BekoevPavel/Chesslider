@@ -6,24 +6,32 @@ import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_enti
 import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/room_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/step_entity.dart';
+import 'package:flutter_chesslider_beta0/domain/enums/game_type.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_state.dart';
+import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_event.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_state.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../core/lib/core.dart';
 import '../../../domain/entities/figure_entity.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/game_repository.dart';
+import '../../../domain/repositories/rooms_repository.dart';
 
 class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
   final AuthRepository _authRepository;
   final GameRepository _gameRepository;
+  final RoomRepository _roomRepository;
 
-  HomeBloc(AuthRepository authRepository, GameRepository gameRepository)
+  HomeBloc(AuthRepository authRepository, GameRepository gameRepository,
+      RoomRepository roomRepository)
       : _authRepository = authRepository,
         _gameRepository = gameRepository,
-        super(HomeState(status: BaseStatus.initial)) {
+        _roomRepository = roomRepository,
+        super(
+            HomeState(status: BaseStatus.initial, gameType: GameType.offline)) {
     on<HomeSignOut>((event, emit) async {
       emit(state.copyWith(
           status: BaseStatus.loading, navigate: AuthNavigate.menu));
@@ -54,11 +62,15 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
       ConnectToRoom event, Emitter<HomeState> emit) async {
     try {
       emit(state.copyWith(status: BaseStatus.loading));
-      RoomEntity room = await _gameRepository.connectToRoom(event.code);
+      RoomEntity room = await _roomRepository.connectToRoom(event.code);
       GetIt.instance.get<List<RoomEntity>>().clear();
       GetIt.instance.get<List<RoomEntity>>().addAll([room]);
+
       emit(state.copyWith(
-          status: BaseStatus.success, navigate: AuthNavigate.game));
+          status: BaseStatus.success,
+          navigate: AuthNavigate.game,
+          gameType: GameType.online,
+          team: TeamEnum.black));
     } on FirebaseAuthException catch (error, stackTrace) {
       handleError(error, stackTrace, emit);
     }
@@ -68,8 +80,12 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
       HomeCreateRoom event, Emitter<HomeState> emit) async {
     try {
       emit(state.copyWith(
-          status: BaseStatus.loading, navigate: AuthNavigate.menu));
-      await _gameRepository.createRoom();
+        status: BaseStatus.loading,
+        navigate: AuthNavigate.menu,
+        gameType: GameType.online,
+        team: TeamEnum.white,
+      ));
+      await _roomRepository.createRoom();
       // await _gameRepository.addStep(
       //   // StepEntity(
       //   //   coordinatiesEntity: CoordinatiesEntity(x: 2, y: 2),
@@ -100,7 +116,9 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
       emit(state.copyWith(
           status: BaseStatus.loading, navigate: AuthNavigate.game));
       //TODO: Удаление комнаты при выходе из игры
-      //await _gameRepository.exitFromRoom();
+
+      await _roomRepository.exitFromRoom();
+      await AppDependencies().removeBoardController();
       emit(state.copyWith(
           status: BaseStatus.success, navigate: AuthNavigate.menu));
     } on FirebaseAuthException catch (error, stackTrace) {

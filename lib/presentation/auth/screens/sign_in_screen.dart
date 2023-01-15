@@ -43,6 +43,7 @@ class _SignInScreenState extends State<SignInScreen> {
         listener: (prevState, currentState) {
           print(currentState.navigate);
           print(currentState.status);
+
           if (currentState.success &&
               currentState.navigate == AuthNavigate.menu) {
             context.router.replace(const HomeRoute());

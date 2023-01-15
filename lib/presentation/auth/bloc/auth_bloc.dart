@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_event.dart';
 
-import '../../../data/repositories/auth_repository_impl.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 

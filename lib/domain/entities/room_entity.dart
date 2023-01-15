@@ -5,11 +5,18 @@ import 'figure_coordinates_entity.dart';
 
 class RoomEntity {
   String id;
+  String firebaseID;
   List<PlayerEntity> players;
   List<FigureEntity> stepsPositions;
+  String stepsID;
 
-  RoomEntity(
-      {required this.id, required this.players, required this.stepsPositions});
+  RoomEntity({
+    required this.id,
+    required this.players,
+    required this.stepsPositions,
+    required this.firebaseID,
+    required this.stepsID,
+  });
 
   Map<String, dynamic> toFirebase() {
     // print('player1: ${players.map((e) => e.userID).toList()}');

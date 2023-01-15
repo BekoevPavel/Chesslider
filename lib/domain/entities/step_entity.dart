@@ -25,6 +25,7 @@ class StepEntity {
       'x': x,
       'y': y,
       'figureID': selectedFigure.id,
+      'canKill': canKill,
     };
   }
 
@@ -36,7 +37,9 @@ class StepEntity {
       coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
       x: gotData['x'],
       y: gotData['y'],
+      canKill: gotData['canKill'],
       selectedFigure: FigureEntity(
+          weight: 0,
           id: gotData['figureID'],
           value: 0,
           x: 0,

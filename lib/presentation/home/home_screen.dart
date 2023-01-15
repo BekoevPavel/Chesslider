@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
+import 'package:flutter_chesslider_beta0/domain/enums/game_type.dart';
+import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_state.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_event.dart';
 import 'package:flutter_chesslider_beta0/presentation/router/app_router.dart';
@@ -36,15 +38,14 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text('Helo'),
-              TextButton(
-                  onPressed: () {},
-                  child: const Text('Игра на одном телефоне')),
               TextButton(
                   onPressed: () {
-                    context.pushRoute(const GameRoute());
+                    context.pushRoute(GameRoute(
+                        myTeam: TeamEnum.black, gameType: GameType.offline));
                   },
-                  child: const Text('Случайная игра онлайн')),
+                  child: const Text('Игра на одном телефоне')),
+              TextButton(
+                  onPressed: () {}, child: const Text('Случайная игра онлайн')),
               TextButton(
                   onPressed: () {
                     context.pushRoute(const CreateRoomRoute());

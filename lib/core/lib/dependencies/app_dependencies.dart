@@ -12,14 +12,28 @@ class AppDependencies {
   Future<void> setDependencies() async {
     final AuthRepository authRepository = AuthRepositoryImpl();
     final GameRepository gameRepository = GameRepositoryImpl();
-    final BoardController boardController = BoardController(boardWidth: 0);
+    final RoomRepository roomRepository = RoomsRepositoryImpl();
     List<PlayerEntity> players = [];
     List<RoomEntity> roomEntity = [];
 
+    //Repositories
     injection.registerLazySingleton<AuthRepository>(() => authRepository);
     injection.registerLazySingleton<GameRepository>(() => gameRepository);
+    injection.registerLazySingleton<RoomRepository>(() => roomRepository);
+
+    //Variables
     injection.registerLazySingleton<List<PlayerEntity>>(() => players);
     injection.registerLazySingleton<List<RoomEntity>>(() => roomEntity);
+  }
+
+  Future<void> addBoardController(BoardController boardController) async {
+    if (injection.isRegistered<BoardController>()) {
+      injection.unregister<BoardController>();
+    }
     injection.registerLazySingleton<BoardController>(() => boardController);
+  }
+
+  Future<void> removeBoardController() async {
+    injection.unregister<BoardController>();
   }
 }
