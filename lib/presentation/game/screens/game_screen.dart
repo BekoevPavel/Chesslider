@@ -28,6 +28,7 @@ class GameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<HomeBloc, HomeState>(
       listener: (context, state) {
+        print('коннект листенинг');
         // TODO: implement listener}
         if (state.success && state.navigate == AuthNavigate.menu) {
           context.replaceRoute(const HomeRoute());
@@ -50,7 +51,6 @@ class GameScreen extends StatelessWidget {
               alignment: Alignment.bottomCenter,
               child: OtpWidget(),
             ),
-
             const Align(
               alignment: Alignment.topCenter,
               child: Padding(
@@ -58,16 +58,16 @@ class GameScreen extends StatelessWidget {
                 child: ScoreWidget(),
               ),
             ),
-
             Align(
-                alignment: Alignment.center,
-                child: Transform.rotate(
-                  angle: myTeam == TeamEnum.white ? 3.14 : 0,
-                  child: BoardWidget(
-                    myTeam: myTeam,
-                    gameType: gameType,
-                  ),
-                )),
+              alignment: Alignment.center,
+              child: Transform.rotate(
+                angle: myTeam == TeamEnum.white ? 3.14 : 0,
+                child: BoardWidget(
+                  myTeam: myTeam,
+                  gameType: gameType,
+                ),
+              ),
+            ),
           ],
         ),
       ),

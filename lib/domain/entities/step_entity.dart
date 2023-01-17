@@ -30,7 +30,7 @@ class StepEntity {
   }
 
   factory StepEntity.fromFirebase(Map<String, dynamic> data) {
-    final gotData = data['stepsPositions'][0];
+    final gotData = data['stepsPositions'];
     print('got data: ${gotData}');
 
     return StepEntity(

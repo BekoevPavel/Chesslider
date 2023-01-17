@@ -10,9 +10,9 @@ import 'package:get_it/get_it.dart';
 
 import 'figure_widget.dart';
 
-LabeledGlobalKey board_key = LabeledGlobalKey('board_key');
+LabeledGlobalKey _board_key = LabeledGlobalKey('board_key1');
 
-class BoardWidget extends StatefulWidget {
+class BoardWidget extends StatelessWidget {
   final TeamEnum myTeam;
   final GameType gameType;
 
@@ -20,61 +20,40 @@ class BoardWidget extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<BoardWidget> createState() => _BoardWidgetState();
-}
-
-class _BoardWidgetState extends State<BoardWidget> {
-  @override
-  void dispose() async {
-    // TODO: implement dispose
-    super.dispose();
-    await context.read<GameCubit>().disposeStream();
-  }
-
-  @override
   Widget build(BuildContext context) {
     double padding = 28;
 
-    return GestureDetector(
-      onTapDown: (details) {},
-      child: OrientationBuilder(builder: ((context, orientation) {
-        final width = orientation == Orientation.portrait
-            ? MediaQuery.of(context).size.width
-            : MediaQuery.of(context).size.height;
-        return Container(
-          key: board_key,
-          height: width,
-          width: width,
-          padding: EdgeInsets.all(padding),
-          decoration: const BoxDecoration(
-            color: Colors.grey,
-            image: DecorationImage(
-              image: AssetImage('assets/images/board.png'),
-            ),
+    return Container(
+        key: _board_key,
+        height: MediaQuery.of(context).size.width,
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.all(padding),
+        decoration: const BoxDecoration(
+          color: Colors.grey,
+          image: DecorationImage(
+            image: AssetImage('assets/images/board.png'),
           ),
-          child: FutureBuilder<double>(
-            future: getWidth(),
-            builder: ((context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              context
-                  .read<GameCubit>()
-                  .startGame(snapshot.data! - (padding * 2), widget.myTeam);
-              return CustomPaint(
-                painter:
-                    BoardPainter(boardWidth: snapshot.data! - (padding * 2)),
-                child: _generateFigures(
-                  boardWidth: snapshot.data! - (padding * 2),
-                ),
+        ),
+        child: FutureBuilder<double>(
+          future: getWidth(),
+          builder: ((context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(),
               );
-            }),
-          ),
-        );
-      })),
-    );
+            }
+            print('следи сиюда !');
+            context
+                .read<GameCubit>()
+                .startGame(snapshot.data! - (padding * 2), myTeam);
+            return CustomPaint(
+              painter: BoardPainter(boardWidth: snapshot.data! - (padding * 2)),
+              child: _generateFigures(
+                boardWidth: snapshot.data! - (padding * 2),
+              ),
+            );
+          }),
+        ));
   }
 
   Widget _generateFigures({required double boardWidth}) {
@@ -95,8 +74,8 @@ class _BoardWidgetState extends State<BoardWidget> {
                   top: boardController.whiteFigures[i].figureCoordinaties.y,
                   child: FigureWidget(
                       cellSize: cell,
-                      gameType: widget.gameType,
-                      myTeam: widget.myTeam,
+                      gameType: gameType,
+                      myTeam: myTeam,
                       figureEntity: boardController.whiteFigures[i]),
                 ),
               // Other figure
@@ -106,8 +85,8 @@ class _BoardWidgetState extends State<BoardWidget> {
                   top: boardController.blackFigures[i].figureCoordinaties.y,
                   child: FigureWidget(
                       cellSize: cell,
-                      gameType: widget.gameType,
-                      myTeam: widget.myTeam,
+                      gameType: gameType,
+                      myTeam: myTeam,
                       figureEntity: boardController.blackFigures[i]),
                 ),
               for (int i = 0; i < boardController.steps.length; i++)
@@ -133,9 +112,9 @@ class _BoardWidgetState extends State<BoardWidget> {
 }
 
 Future<double> getWidth() async {
-  await Future.delayed(const Duration(microseconds: 10));
+  await Future.delayed(const Duration(microseconds: 80));
 
-  return board_key.currentContext!.size!.width;
+  return _board_key.currentContext!.size!.width;
 }
 
 class BoardPainter extends CustomPainter {

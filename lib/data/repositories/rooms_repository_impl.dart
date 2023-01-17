@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/rooms_repository.dart';
 import 'package:get_it/get_it.dart';
 import 'package:otp/otp.dart';
@@ -18,7 +19,7 @@ class RoomsRepositoryImpl extends RoomRepository {
         .where('id', isEqualTo: code)
         .get();
 
-    final PlayerEntity myUser = GetIt.instance.get<List<PlayerEntity>>().first;
+    final PlayerEntity myUser = AppDependencies().getMyPlayer();
 
     late String enemyID;
     late String stepsID;
@@ -50,7 +51,7 @@ class RoomsRepositoryImpl extends RoomRepository {
   @override
   Future<void> createRoom() async {
     final credential = FirebaseAuth.instance.currentUser!;
-    final PlayerEntity myUser = GetIt.instance.get<List<PlayerEntity>>().first;
+    final PlayerEntity myUser = AppDependencies().getMyPlayer();
     final room = RoomEntity(
         id: credential.uid,
         players: [myUser],
@@ -80,15 +81,13 @@ class RoomsRepositoryImpl extends RoomRepository {
 
     print('roomID: ${room.firebaseID}');
 
-    GetIt.instance.get<List<RoomEntity>>().clear();
-    GetIt.instance.get<List<RoomEntity>>().addAll([room]);
-    print(
-        'create new room: ${GetIt.instance.get<List<RoomEntity>>().first.id}');
+    AppDependencies().setRoom(room);
+    print('create new room: ${AppDependencies().getRoom().id}');
   }
 
   @override
   Future<void> exitFromRoom() async {
-    final localRoom = GetIt.instance.get<List<RoomEntity>>().first;
+    final localRoom = AppDependencies().getRoom();
 
     print('delete room: ${localRoom.id}');
     //final room
@@ -105,18 +104,51 @@ class RoomsRepositoryImpl extends RoomRepository {
   }
 
   @override
-  Stream<RoomEntity> listenRoomState() async* {
+  Stream<String?> listenOtherPlayerState() async* {
     print('listenRoom');
     // TODO: implement listenRoomState
-    final currentRoom = GetIt.instance.get<List<RoomEntity>>().first;
+    final currentRoom = AppDependencies().getRoom();
     final wated = FirebaseFirestore.instance
         .collection('rooms')
         .doc(currentRoom.firebaseID)
         .snapshots();
     await for (var i in wated) {
       print('roomInfo: ${i.data()}');
-    }
+      if (i.data() != null &&
+          i.data()?['stepsID'] != null &&
+          i.data()!['playersID'].toString().length > 46) {
+        print('есть новое подключение ');
+        final lst = i.data()?['playersID'] as List<dynamic>;
+        final otherID = lst
+            .where((element) {
+              if (element.toString() !=
+                  FirebaseAuth.instance.currentUser!.uid) {
+                return true;
+              }
+              return false;
+            })
+            .toList()
+            .first
+            .toString();
+        print('otherID: ${otherID}');
+        yield otherID;
+        //currentRoom.players.add(PlayerEntity(userID: userID, email: email, username: username, winsCount: winsCount, lossCount: lossCount, drawCount: drawCount, gameSearch: gameSearch, networkStatus: networkStatus, rating: rating))
+      }
+      if (i.data() == null) {
+        print('room deleted');
 
-    throw UnimplementedError();
+        yield null;
+      }
+    }
+  }
+
+  @override
+  Future<PlayerEntity> getOtherPlayerEntity(String id) async {
+    print('find other');
+    final userInfo =
+        await FirebaseFirestore.instance.collection('users').doc(id).get();
+
+    print('Other Player: ${userInfo.data()}');
+    return PlayerEntity.fromFirebase(userInfo.data()!);
   }
 }

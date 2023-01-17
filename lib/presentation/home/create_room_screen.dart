@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_state.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_event.dart';
@@ -16,7 +17,7 @@ class CreateRoomScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final myUser = GetIt.instance.get<List<PlayerEntity>>().first;
+    final myUser = AppDependencies().getMyPlayer();
     print('myUser: ${myUser.username}');
     return Scaffold(
       appBar: AppBar(
@@ -28,6 +29,7 @@ class CreateRoomScreen extends StatelessWidget {
           if (state.success && state.navigate == AuthNavigate.game) {
             context.replaceRoute(
                 GameRoute(myTeam: state.team, gameType: state.gameType));
+            print('переход к игре');
           }
         },
         child: Column(
@@ -94,8 +96,9 @@ class CreateRoomScreen extends StatelessWidget {
               ),
               child: const Text('Присоединиться'),
               onPressed: () {
-                context.read<HomeBloc>().add(ConnectToRoom(_controller.text));
                 Navigator.of(context).pop();
+
+                context.read<HomeBloc>().add(ConnectToRoom(_controller.text));
               },
             ),
           ],

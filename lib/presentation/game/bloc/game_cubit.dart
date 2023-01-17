@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/figure_position_entity.dart';
+import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/entities/step_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/game_repository.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/rooms_repository.dart';
@@ -15,7 +17,14 @@ import 'package:get_it/get_it.dart';
 import '../../../domain/entities/figure_entity.dart';
 import '../../../domain/enums/team_enum.dart';
 
-class GameState {}
+class GameState extends BaseState {
+  GameState({super.status = BaseStatus.initial});
+
+  @override
+  GameState copyWith({required BaseStatus status}) {
+    return GameState(status: status);
+  }
+}
 
 class InitialGame extends GameState {}
 
@@ -385,9 +394,20 @@ class GameCubit extends Cubit<GameState> {
     _boardController = GetIt.instance.get<BoardController>();
     //_roomRepository.listenRoomState().listen((event) {});
 
-    getLastStep();
     emit(LoadingGame());
     emit(LoadedGame());
+    print('start game');
+    getLastStep();
+    _roomRepository.listenOtherPlayerState().listen((event) async {
+      // print('eventMY: ${event.}');
+      if (event != null) {
+        print('found');
+        PlayerEntity player =
+            await _roomRepository.getOtherPlayerEntity(event!);
+        print('PlayerRating: ${player.rating} , ${player.username}');
+        await AppDependencies().setEnemyPlayer(player);
+      }
+    });
   }
 
   Future<void> foundFinalStep(StepEntity step) async {

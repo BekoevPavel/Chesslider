@@ -13,8 +13,6 @@ class AppDependencies {
     final AuthRepository authRepository = AuthRepositoryImpl();
     final GameRepository gameRepository = GameRepositoryImpl();
     final RoomRepository roomRepository = RoomsRepositoryImpl();
-    List<PlayerEntity> players = [];
-    List<RoomEntity> roomEntity = [];
 
     //Repositories
     injection.registerLazySingleton<AuthRepository>(() => authRepository);
@@ -22,8 +20,44 @@ class AppDependencies {
     injection.registerLazySingleton<RoomRepository>(() => roomRepository);
 
     //Variables
-    injection.registerLazySingleton<List<PlayerEntity>>(() => players);
-    injection.registerLazySingleton<List<RoomEntity>>(() => roomEntity);
+  }
+
+  Future<void> setRoom(RoomEntity room) async {
+    if (injection.isRegistered<RoomEntity>()) {
+      injection.unregister<RoomEntity>();
+    }
+
+    injection.registerLazySingleton<RoomEntity>(() => room);
+  }
+
+  RoomEntity getRoom() {
+    return injection.get<RoomEntity>();
+  }
+
+  Future<void> setMyPlayer(PlayerEntity player) async {
+    if (injection.isRegistered<BoardController>(instanceName: 'myPlayer')) {
+      injection.unregister<PlayerEntity>(instanceName: 'myPlayer');
+    }
+
+    injection.registerLazySingleton<PlayerEntity>(() => player,
+        instanceName: 'myPlayer');
+  }
+
+  Future<void> setEnemyPlayer(PlayerEntity player) async {
+    if (injection.isRegistered<BoardController>(instanceName: 'enemyPlayer')) {
+      injection.unregister<PlayerEntity>(instanceName: 'enemyPlayer');
+    }
+
+    injection.registerLazySingleton<PlayerEntity>(() => player,
+        instanceName: 'enemyPlayer');
+  }
+
+  PlayerEntity getMyPlayer() {
+    return injection.get<PlayerEntity>(instanceName: 'myPlayer');
+  }
+
+  PlayerEntity getEnemyPlayer() {
+    return injection.get<PlayerEntity>(instanceName: 'enemyPlayer');
   }
 
   Future<void> addBoardController(BoardController boardController) async {

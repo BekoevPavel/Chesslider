@@ -53,8 +53,9 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
       HomeFirstStart event, Emitter<HomeState> emit) async {
     try {
       final user = await _authRepository.getPlayer1();
-      GetIt.instance.get<List<PlayerEntity>>().clear();
-      GetIt.instance.get<List<PlayerEntity>>().addAll([user]);
+      // GetIt.instance.get<List<PlayerEntity>>().clear();
+      // GetIt.instance.get<List<PlayerEntity>>().addAll([user]);
+      AppDependencies().setMyPlayer(user);
     } catch (error, stackTrace) {}
   }
 
@@ -63,14 +64,16 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
     try {
       emit(state.copyWith(status: BaseStatus.loading));
       RoomEntity room = await _roomRepository.connectToRoom(event.code);
-      GetIt.instance.get<List<RoomEntity>>().clear();
-      GetIt.instance.get<List<RoomEntity>>().addAll([room]);
+
+      AppDependencies().setRoom(room);
+      await Future.delayed(const Duration(milliseconds: 250));
 
       emit(state.copyWith(
           status: BaseStatus.success,
           navigate: AuthNavigate.game,
           gameType: GameType.online,
           team: TeamEnum.black));
+      print('connect to room');
     } on FirebaseAuthException catch (error, stackTrace) {
       handleError(error, stackTrace, emit);
     }
@@ -86,23 +89,7 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
         team: TeamEnum.white,
       ));
       await _roomRepository.createRoom();
-      // await _gameRepository.addStep(
-      //   // StepEntity(
-      //   //   coordinatiesEntity: CoordinatiesEntity(x: 2, y: 2),
-      //   //   x: 32,
-      //   //   y: 2,
-      //   //   selectedFigure: FigureEntity(
-      //   //       id: 2,
-      //   //       value: 4,
-      //   //       x: 3,
-      //   //       y: 3,
-      //   //       figureCoordinaties: CoordinatiesEntity(x: 2, y: 2),
-      //   //       figurePosition: CoordinatiesEntity(x: 2, y: 2),
-      //   //       color: Colors.red,
-      //   //       borderColor: Colors.red,
-      //   //       team: TeamEnum.white),
-      //   // ),
-      // );
+
       emit(state.copyWith(
           status: BaseStatus.success, navigate: AuthNavigate.game));
     } on FirebaseAuthException catch (error, stackTrace) {

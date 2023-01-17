@@ -1,3 +1,5 @@
+import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
+
 import '../entities/room_entity.dart';
 
 abstract class RoomRepository {
@@ -7,5 +9,7 @@ abstract class RoomRepository {
 
   Future<void> createRoom();
 
-  Stream<RoomEntity> listenRoomState();
+  Stream<String?> listenOtherPlayerState();
+
+  Future<PlayerEntity> getOtherPlayerEntity(String id);
 }

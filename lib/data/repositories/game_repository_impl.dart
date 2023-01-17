@@ -50,32 +50,40 @@ class GameRepositoryImpl extends GameRepository {
 
   @override
   Future<void> addStep(step) async {
-    CollectionReference rooms = FirebaseFirestore.instance.collection('rooms');
-    RoomEntity room = GetIt.instance.get<List<RoomEntity>>().first;
+    //CollectionReference rooms = FirebaseFirestore.instance.collection('rooms');
+    CollectionReference steps = FirebaseFirestore.instance.collection('steps');
+    RoomEntity room = AppDependencies().getRoom();
 
-    await rooms
-        .doc(room.firebaseID)
-        .update({
-          'stepsPositions': [step.toFirebase()]
-        })
+    // await rooms
+    //     .doc(room.firebaseID)
+    //     .update({
+    //       'stepsPositions': [step.toFirebase()]
+    //     })
+    //     .then((value) => print("User Updated"))
+    //     .catchError((error) => print("Failed to update user: $error"));
+    await steps
+        .doc(room.stepsID)
+        .update({'stepsPositions': step.toFirebase()})
         .then((value) => print("User Updated"))
         .catchError((error) => print("Failed to update user: $error"));
+
     // TODO: implement addStep
     //throw UnimplementedError();
   }
 
   @override
   Stream<StepEntity> getLastStep() async* {
-  // BoardController _boardController = GetIt.instance.get<BoardController>();
+    // BoardController _boardController = GetIt.instance.get<BoardController>();
     // TeamEnum whoMove = _boardController.refery.whoseMove;
     // final bool listenState = _boardController.myTeam == whoMove ? false : true;
 
-    var ff = FirebaseFirestore.instance.collection('rooms').where('id',
-        isEqualTo: GetIt.instance.get<List<RoomEntity>>().first.id);
+    var ff = FirebaseFirestore.instance
+        .collection('steps')
+        .where('roomID', isEqualTo: AppDependencies().getRoom().firebaseID);
 
     await for (var t in ff.snapshots()) {
       for (var g in t.docs) {
-        if (g.data()['stepsPositions'].toString() != '[]') {
+        if (g.data()['stepsPositions'].toString() != 'null') {
           yield StepEntity.fromFirebase(g.data());
         }
       }
