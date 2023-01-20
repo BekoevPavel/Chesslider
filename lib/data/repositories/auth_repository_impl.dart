@@ -1,13 +1,9 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/game_search.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/network_status.dart';
-
-import '../../core/lib/core.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../dto/player/player.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   @override
@@ -38,25 +34,24 @@ class AuthRepositoryImpl implements AuthRepository {
       email: email,
       password: password,
     );
+    final myPlayer = Player(
+        userID: credential.user!.uid,
+        email: email,
+        username: userName,
+        winsCount: 0,
+        lossCount: 0,
+        drawCount: 0,
+        gameSearch: GameSearch.off,
+        networkStatus: NetworkStatus.online,
+        rating: 0);
     await FirebaseFirestore.instance
         .collection('users')
         .doc(credential.user!.uid)
-        .set({
-      'userID1': credential.user!.uid,
-      'email': credential.user!.email,
-      'username': userName,
-      'winsCount': 0,
-      'lossCount': 0,
-      'drawsCount': 0,
-      'networkStatus': NetworkStatus.online.toFirebase,
-      'gameSearch': GameSearch.on.toFirebase,
-      'rating': 0.0
-    });
+        .set(myPlayer.toJson());
   }
 
   @override
   Stream<bool> checkAuthState() async* {
-    // TODO: implement checkAuthState
     var stream = FirebaseAuth.instance.authStateChanges();
 
     await for (var u in stream) {
@@ -68,8 +63,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<PlayerEntity> getPlayer1() async {
-    // TODO: implement getPlayer1
+  Future<Player> getPlayer1() async {
     final myID = FirebaseAuth.instance.currentUser!.uid;
     var fire = FirebaseFirestore.instance
         .collection('users')
@@ -79,7 +73,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (players.docs.isNotEmpty) {
         for (var p in players.docs) {
           print('p: ${p.data()}');
-          return PlayerEntity.fromFirebase(p.data());
+          return Player.fromJson(p.data());
         }
       }
     }

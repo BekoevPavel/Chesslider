@@ -1,11 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
-
-import '../../core/lib/core.dart';
+import '../../data/dto/player/player.dart';
 
 abstract class AuthRepository {
-  Future<void> singIn(
-      {required String email, required String password});
+  Future<void> singIn({required String email, required String password});
 
   Future<void> singUp(
       {required String email,
@@ -14,14 +10,9 @@ abstract class AuthRepository {
 
   Future<void> singOut();
 
-  Future<PlayerEntity> getPlayer1();
-
+  Future<Player> getPlayer1();
 
   Stream<bool> checkAuthState();
-
-
-
-
 
 // Future<void> addPost(
 //     {required String descriptoin,

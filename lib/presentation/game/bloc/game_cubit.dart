@@ -1,59 +1,59 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/figure_position_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/step_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/game_repository.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/rooms_repository.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/bloc/score_bloc.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:get_it/get_it.dart';
+import '../../../data/dto/coordinates/coordinates.dart';
+import '../../../data/dto/figure/figure.dart';
+import '../../../data/dto/player/player.dart';
+import '../../../data/dto/step/step.dart' as s;
 
-import '../../../domain/entities/figure_entity.dart';
 import '../../../domain/enums/team_enum.dart';
 
 class GameState extends BaseState {
-  GameState({super.status = BaseStatus.initial});
+  GameState({super.status = BaseStatus.initial, this.enemyPlayer});
+
+  Player? enemyPlayer;
 
   @override
-  GameState copyWith({required BaseStatus status}) {
-    return GameState(status: status);
+  GameState copyWith({required BaseStatus status, Player? enemyPlayer}) {
+    return GameState(
+        status: status, enemyPlayer: enemyPlayer ?? this.enemyPlayer);
   }
 }
-
-class InitialGame extends GameState {}
-
-class LoadingGame extends GameState {}
-
-class LoadedGame extends GameState {}
 
 //---Cubit
 class GameCubit extends Cubit<GameState> {
   final GameRepository _gameRepository;
-  late StreamSubscription<StepEntity> lastStepStream;
+  late StreamSubscription<s.Step> lastStepStream;
   late BoardController _boardController;
   RoomRepository _roomRepository;
   final ScoreBloc _scoreBloc;
 
-  List<StepEntity> steps = [];
+  List<s.Step> steps = [];
 
   GameCubit(GameRepository gameRepository, ScoreBloc scoreBloc,
       RoomRepository roomRepository)
       : _gameRepository = gameRepository,
         _scoreBloc = scoreBloc,
         _roomRepository = roomRepository,
-        super(InitialGame());
+        super(GameState());
 
-  Future<void> tapToStep(StepEntity step) async {
+  Future<void> tapToStep(s.Step step) async {
     AppLogger.tapToStep(step: step);
 
     foundFinalStep(step);
+    // emit(state.copyWith(status: BaseStatus.loading));
 
+    _boardController.refery.whoseMove =
+        _boardController.myTeam == TeamEnum.white
+            ? TeamEnum.black
+            : TeamEnum.white;
     _boardController.tapToStep(step);
     await _gameRepository.addStep(step);
 
@@ -63,19 +63,19 @@ class GameCubit extends Cubit<GameState> {
     //   showStep(figure);
     // }
 
-    emit(LoadedGame());
+    emit(state.copyWith(status: BaseStatus.success));
   }
 
   bool canMove() {
     TeamEnum whoseMove = _boardController.refery.whoseMove;
     int countSteps = 0;
     if (whoseMove == TeamEnum.white) {
-      for (FigureEntity figure in _boardController.whiteFigures) {
+      for (Figure figure in _boardController.whiteFigures) {
         countSteps = countSteps + checkActiveSteps(figure).length;
       }
     }
     if (whoseMove == TeamEnum.black) {
-      for (FigureEntity figure in _boardController.blackFigures) {
+      for (Figure figure in _boardController.blackFigures) {
         countSteps = countSteps + checkActiveSteps(figure).length;
       }
     }
@@ -87,10 +87,10 @@ class GameCubit extends Cubit<GameState> {
     return true;
   }
 
-  List<StepEntity> checkActiveSteps(FigureEntity figure) {
-    List<StepEntity> steps = [];
+  List<s.Step> checkActiveSteps(Figure figure) {
+    List<s.Step> steps = [];
     if (!figure.reachedTheEnd) {
-      final List<FigureEntity> finalLst = [
+      final List<Figure> finalLst = [
         ..._boardController.whiteFigures,
         ..._boardController.blackFigures
       ];
@@ -173,55 +173,55 @@ class GameCubit extends Cubit<GameState> {
         if (left.isEmpty &&
             (conflicts == -1 || conflicts == 1) &&
             conflicts != 0)
-          StepEntity(
+          s.Step(
             x: figure.x - 1,
             y: figure.y,
-            selectedFigure: figure,
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+            figure: figure,
+            coordinates: Coordinates(x: 0, y: 0),
           ),
         if (right.isEmpty &&
             (conflicts == -1 || conflicts == 1) &&
             conflicts != 0)
-          StepEntity(
+          s.Step(
             x: figure.x + 1,
             y: figure.y,
-            selectedFigure: figure,
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+            figure: figure,
+            coordinates: Coordinates(x: 0, y: 0),
           ),
         if (ahead_my.isEmpty && figure.id < 8)
-          StepEntity(
+          s.Step(
             x: figure.x,
             y: figure.y + 1,
-            selectedFigure: figure,
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+            figure: figure,
+            coordinates: Coordinates(x: 0, y: 0),
           ),
         if (ahead_x2_my.isEmpty &&
             figure.id < 8 &&
             ahead_my.isEmpty &&
             figure.countSteps == 0)
-          StepEntity(
+          s.Step(
             x: figure.x,
             y: figure.y + 2,
-            selectedFigure: figure,
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+            figure: figure,
+            coordinates: Coordinates(x: 0, y: 0),
           ),
         //-
         if (ahead_other.isEmpty && figure.id >= 8)
-          StepEntity(
+          s.Step(
             x: figure.x,
             y: figure.y - 1,
-            selectedFigure: figure,
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+            figure: figure,
+            coordinates: Coordinates(x: 0, y: 0),
           ),
         if (ahead_x2_other.isEmpty &&
             figure.id >= 8 &&
             ahead_other.isEmpty &&
             figure.countSteps == 0)
-          StepEntity(
+          s.Step(
             x: figure.x,
             y: figure.y - 2,
-            selectedFigure: figure,
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+            figure: figure,
+            coordinates: Coordinates(x: 0, y: 0),
           ),
       ];
       if (conflicts == 2) {
@@ -244,29 +244,29 @@ class GameCubit extends Cubit<GameState> {
           return false;
         }).toList();
         if (left.isEmpty && checkPositionAlFiguresLeft.isEmpty) {
-          steps.add(StepEntity(
+          steps.add(s.Step(
             x: figure.x - 1,
             y: figure.team == TeamEnum.black ? figure.y + 2 : figure.y - 2,
-            selectedFigure: figure,
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+            figure: figure,
+            coordinates: Coordinates(x: 0, y: 0),
           ));
         }
         if (right.isEmpty && checkPositionAlFiguresRight.isEmpty) {
-          steps.add(StepEntity(
+          steps.add(s.Step(
             x: figure.x + 1,
             y: figure.team == TeamEnum.black ? figure.y + 2 : figure.y - 2,
-            selectedFigure: figure,
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+            figure: figure,
+            coordinates: Coordinates(x: 0, y: 0),
           ));
         }
       }
 
       if (conflicts == 1) {
-        steps.add(StepEntity(
+        steps.add(s.Step(
           x: figure.x,
           y: figure.team == TeamEnum.black ? figure.y - 1 : figure.y + 1,
-          selectedFigure: figure,
-          coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
+          figure: figure,
+          coordinates: Coordinates(x: 0, y: 0),
           canKill: true,
         ));
       }
@@ -274,17 +274,17 @@ class GameCubit extends Cubit<GameState> {
     return steps;
   }
 
-  Future<void> showStep(FigureEntity selectedEntity) async {
+  Future<void> showStep(Figure selectedEntity) async {
     AppLogger.selectedFigureLog(selectedEntity);
 
     if (!selectedEntity.reachedTheEnd) {
-      final List<FigureEntity> finalLst = [
+      final List<Figure> finalLst = [
         ..._boardController.whiteFigures,
         ..._boardController.blackFigures
       ];
 
-      emit(LoadingGame());
-      emit(LoadedGame());
+      emit(state.copyWith(status: BaseStatus.loading));
+      emit(state.copyWith(status: BaseStatus.success));
 
       //AppLogger.showAllFigure(finalLst);
       steps = checkActiveSteps(selectedEntity);
@@ -299,7 +299,7 @@ class GameCubit extends Cubit<GameState> {
 
   /// 0 eсли равны, 1 если myValue>OtherValue, 2 если myValue>OtherValue,
   int _calculateFiguresValue(
-    FigureEntity selectedFigure,
+    Figure selectedFigure,
   ) {
     if (selectedFigure.team == TeamEnum.black) {
       int rowX = selectedFigure.x;
@@ -394,65 +394,77 @@ class GameCubit extends Cubit<GameState> {
     _boardController = GetIt.instance.get<BoardController>();
     //_roomRepository.listenRoomState().listen((event) {});
 
-    emit(LoadingGame());
-    emit(LoadedGame());
+    // emit(LoadingGame());
+    // emit(LoadedGame());
+    emit(state.copyWith(status: BaseStatus.loading));
+    emit(state.copyWith(status: BaseStatus.success));
     print('start game');
     getLastStep();
-    _roomRepository.listenOtherPlayerState().listen((event) async {
+    _roomRepository.listenOtherPlayerState().listen((player) async {
       // print('eventMY: ${event.}');
-      if (event != null) {
+      if (player != null) {
         print('found');
-        PlayerEntity player =
-            await _roomRepository.getOtherPlayerEntity(event!);
-        print('PlayerRating: ${player.rating} , ${player.username}');
-        await AppDependencies().setEnemyPlayer(player);
+        print('enemy: ${player.userID} ${player.username}');
+
+        //print('PlayerRating: ${player.rating} , ${player.username}');
+        // await AppDependencies().setEnemyPlayer(player);
+        emit(state.copyWith(status: BaseStatus.success, enemyPlayer: player));
       }
     });
   }
 
-  Future<void> foundFinalStep(StepEntity step) async {
-    if (step.selectedFigure.team == TeamEnum.black && step.y == 0) {
-      AppLogger.figureReachedTheEnd(step.selectedFigure);
-      step.selectedFigure.reachedTheEnd = true;
+  Future<void> foundFinalStep(s.Step step) async {
+    if (step.figure.team == TeamEnum.black && step.y == 0) {
+      AppLogger.figureReachedTheEnd(step.figure);
+      step.figure.reachedTheEnd = true;
     }
-    if (step.selectedFigure.team == TeamEnum.white && step.y == 7) {
-      AppLogger.figureReachedTheEnd(step.selectedFigure);
-      step.selectedFigure.reachedTheEnd = true;
+    if (step.figure.team == TeamEnum.white && step.y == 7) {
+      AppLogger.figureReachedTheEnd(step.figure);
+      step.figure.reachedTheEnd = true;
     }
   }
 
   Future<void> getLastStep() async {
-    lastStepStream = _gameRepository.getLastStep().listen((event) {
-      print('event: ${event.x} ${event.y}');
-      FigureEntity? foundFigure;
-      if (event.selectedFigure.id >= 8 &&
-          _boardController.myTeam == TeamEnum.white) {
-        print('black hod');
-        foundFigure = _boardController.blackFigures
-            .firstWhere((element) => element.id == event.selectedFigure.id);
-        print('event id: ${event.selectedFigure.id}');
-        print('succses');
-        print(
-            'foundedFigure:id  ${foundFigure.id} value: ${foundFigure.value}  team: ${foundFigure.team.name}');
-        tapToStep(StepEntity(
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
-            x: event.x,
-            y: event.y,
-            canKill: event.canKill,
-            selectedFigure: foundFigure));
-      } else if (event.selectedFigure.id < 8 &&
-          _boardController.myTeam == TeamEnum.black) {
-        print('white hod');
-        foundFigure = _boardController.whiteFigures
-            .firstWhere((element) => element.id == event.selectedFigure.id);
-        tapToStep(StepEntity(
-            coordinatiesEntity: CoordinatiesEntity(x: 0, y: 0),
-            x: event.x,
-            y: event.y,
-            canKill: event.canKill,
-            selectedFigure: foundFigure));
-      }
-    });
+    lastStepStream = _gameRepository.getLastStep().listen(
+      (event) {
+        print('event: ${event.x} ${event.y}');
+        Figure? foundFigure;
+
+        if (event.figure.team == TeamEnum.black &&
+            _boardController.myTeam == TeamEnum.white &&
+            _boardController.refery.whoseMove == event.figure.team) {
+          print('black hod');
+
+          foundFigure = _boardController.blackFigures
+              .firstWhere((element) => element.id == event.figure.id);
+          print('event id: ${event.figure.id}');
+          print('succses');
+          print(
+              'foundedFigure:id  ${foundFigure.id} value: ${foundFigure.value}  team: ${foundFigure.team.name}');
+          tapToStep(s.Step(
+              coordinates: Coordinates(x: 0, y: 0),
+              x: event.x,
+              y: event.y,
+              canKill: event.canKill,
+              figure: foundFigure));
+          _boardController.refery.whoseMove = TeamEnum.white;
+          //TODO: разобраться с этим моментом
+        } else if (event.figure.team == TeamEnum.white &&
+            _boardController.myTeam == TeamEnum.black &&
+            _boardController.refery.whoseMove == event.figure.team) {
+          print('white hod');
+          foundFigure = _boardController.whiteFigures
+              .firstWhere((element) => element.id == event.figure.id);
+          tapToStep(s.Step(
+              coordinates: Coordinates(x: 0, y: 0),
+              x: event.x,
+              y: event.y,
+              canKill: event.canKill,
+              figure: foundFigure));
+          _boardController.refery.whoseMove = TeamEnum.black;
+        }
+      },
+    );
   }
 
   Future<void> disposeStream() async {

@@ -20,7 +20,6 @@ class SplashState extends BaseState {
       String? email,
       AuthNavigate? navigate,
       bool? userState}) {
-    // TODO: implement copyWith
     return SplashState(
       status: status ?? BaseStatus.initial,
       navigate: navigate ?? this.navigate,
@@ -58,7 +57,7 @@ class SplashBloc extends BaseBloc<SplashEvent, SplashState> {
         handleError(error, stackTrace, emit);
       }
       print('ID: ${FirebaseAuth.instance.currentUser!.uid}');
-     // _gameRepository.foundOnlinePlayers();
+      // _gameRepository.foundOnlinePlayers();
     });
   }
 }

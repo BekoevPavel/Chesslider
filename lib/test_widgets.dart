@@ -9,6 +9,7 @@ class TestWidgetsPage extends StatefulWidget {
 
 class _TestWidgetsPageState extends State<TestWidgetsPage> {
   int count = 0;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -34,8 +35,10 @@ class _TestWidgetsPageState extends State<TestWidgetsPage> {
 
 class SecondWidget extends StatelessWidget {
   SecondWidget({super.key});
+
   final int a = 0;
   final SecondWidget1 cecond = const SecondWidget1();
+
   //final FirstWidget firstW = FirstWidget();
 
   @override
@@ -58,10 +61,11 @@ class FirstWidget extends StatefulWidget {
 
 class _FirstWidgetState extends State<FirstWidget> {
   int param = 0;
+
   @override
   void initState() {
     print('init');
-    // TODO: implement initState
+
     super.initState();
   }
 
@@ -97,8 +101,8 @@ class SecondWidget1 extends StatelessWidget {
 }
 
 // у всех виджетов по умолчанию при перестроении вызывается только build
-//SteteFull(child: 
-// StateFul(key: key) — если вызвать у верхнего setState у нижнего вызовется только build. 
+//SteteFull(child:
+// StateFul(key: key) — если вызвать у верхнего setState у нижнего вызовется только build.
 //созданные внутри _state переменные не изменятся
 //чтобы полностью перестроить stateful widget нужно дать ему valueKey с разнымии значениями каждый раз когда перерисовываем
 //если перед виджетом в дереве стоит const он не будет перерисовываться вообще прям

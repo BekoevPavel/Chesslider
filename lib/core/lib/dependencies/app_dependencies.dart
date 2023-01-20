@@ -22,42 +22,42 @@ class AppDependencies {
     //Variables
   }
 
-  Future<void> setRoom(RoomEntity room) async {
-    if (injection.isRegistered<RoomEntity>()) {
-      injection.unregister<RoomEntity>();
+  Future<void> setRoom(Room room) async {
+    if (injection.isRegistered<Room>()) {
+      injection.unregister<Room>();
     }
 
-    injection.registerLazySingleton<RoomEntity>(() => room);
+    injection.registerLazySingleton<Room>(() => room);
   }
 
-  RoomEntity getRoom() {
-    return injection.get<RoomEntity>();
+  Room getRoom() {
+    return injection.get<Room>();
   }
 
-  Future<void> setMyPlayer(PlayerEntity player) async {
-    if (injection.isRegistered<BoardController>(instanceName: 'myPlayer')) {
-      injection.unregister<PlayerEntity>(instanceName: 'myPlayer');
+  Future<void> setMyPlayer(Player player) async {
+    if (injection.isRegistered<Player>(instanceName: 'myPlayer')) {
+      injection.unregister<Player>(instanceName: 'myPlayer');
     }
 
-    injection.registerLazySingleton<PlayerEntity>(() => player,
+    injection.registerLazySingleton<Player>(() => player,
         instanceName: 'myPlayer');
   }
 
-  Future<void> setEnemyPlayer(PlayerEntity player) async {
-    if (injection.isRegistered<BoardController>(instanceName: 'enemyPlayer')) {
-      injection.unregister<PlayerEntity>(instanceName: 'enemyPlayer');
+  Future<void> setEnemyPlayer(Player player) async {
+    if (injection.isRegistered<Player>(instanceName: 'enemyPlayer')) {
+      injection.unregister<Player>(instanceName: 'enemyPlayer');
     }
 
-    injection.registerLazySingleton<PlayerEntity>(() => player,
+    injection.registerLazySingleton<Player>(() => player,
         instanceName: 'enemyPlayer');
   }
 
-  PlayerEntity getMyPlayer() {
-    return injection.get<PlayerEntity>(instanceName: 'myPlayer');
+  Player getMyPlayer() {
+    return injection.get<Player>(instanceName: 'myPlayer');
   }
 
-  PlayerEntity getEnemyPlayer() {
-    return injection.get<PlayerEntity>(instanceName: 'enemyPlayer');
+  Player getEnemyPlayer() {
+    return injection.get<Player>(instanceName: 'enemyPlayer');
   }
 
   Future<void> addBoardController(BoardController boardController) async {
@@ -65,6 +65,10 @@ class AppDependencies {
       injection.unregister<BoardController>();
     }
     injection.registerLazySingleton<BoardController>(() => boardController);
+  }
+
+  BoardController getBoardController() {
+    return injection.get<BoardController>();
   }
 
   Future<void> removeBoardController() async {

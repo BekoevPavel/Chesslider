@@ -3,11 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_state.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_event.dart';
 import 'package:flutter_chesslider_beta0/presentation/router/app_router.dart';
-import 'package:get_it/get_it.dart';
 
 import 'bloc/home_bloc.dart';
 import 'bloc/home_state.dart';

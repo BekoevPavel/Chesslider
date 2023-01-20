@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/game_type.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/bloc/game_cubit.dart';
-import 'package:flutter_chesslider_beta0/common/configuration.dart';
+import 'package:flutter_chesslider_beta0/resources/app_colors.dart';
 
-import '../../../domain/entities/figure_entity.dart';
+import '../../../data/dto/figure/figure.dart';
 
 class FigureWidget extends StatelessWidget {
   final TeamEnum myTeam;
@@ -19,7 +19,7 @@ class FigureWidget extends StatelessWidget {
       required this.gameType,
       required this.cellSize});
 
-  final FigureEntity figureEntity;
+  final Figure figureEntity;
 
   @override
   Widget build(BuildContext context) {
@@ -42,16 +42,18 @@ class FigureWidget extends StatelessWidget {
           width: 12,
           height: 12,
           decoration: BoxDecoration(
-            color: figureEntity.color,
+            color: AppColors.getFigureBody(figureEntity.team),
             borderRadius: BorderRadius.circular(50),
-            border: Border.all(width: 2, color: figureEntity.borderColor),
+            border: Border.all(
+                width: 2, color: AppColors.getFigureBorder(figureEntity.team)),
           ),
           child: Center(
             child: Transform.rotate(
               angle: myTeam == TeamEnum.white ? 3.14 : 0,
               child: Text(
                 figureEntity.value.toString(),
-                style: TextStyle(color: figureEntity.borderColor),
+                style: TextStyle(
+                    color: AppColors.getFigureBorder(figureEntity.team)),
               ),
             ),
           ),

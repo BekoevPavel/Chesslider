@@ -1,15 +1,14 @@
-import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
-
-import '../entities/room_entity.dart';
+import '../../data/dto/player/player.dart';
+import '../../data/dto/room/room.dart';
 
 abstract class RoomRepository {
-  Future<RoomEntity> connectToRoom(String code);
+  Future<Room> connectToRoom(String code);
 
   Future<void> exitFromRoom();
 
   Future<void> createRoom();
 
-  Stream<String?> listenOtherPlayerState();
+  Stream<Player?> listenOtherPlayerState();
 
-  Future<PlayerEntity> getOtherPlayerEntity(String id);
+  Future<Player> getOtherPlayerEntity(String id);
 }

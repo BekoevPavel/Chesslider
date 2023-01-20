@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/figure_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/step_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
 import 'package:get_it/get_it.dart';
+
+import '../../../data/dto/figure/figure.dart';
 
 class ScoreEvent {}
 
@@ -46,7 +46,6 @@ class ScoreState extends BaseState {
       bool? whiteWin,
       bool? draw,
       TeamEnum? whoseMove}) {
-    // TODO: implement copyWith
     return ScoreState(
         status: status ?? this.status,
         whiteScore: whiteScore ?? this.whiteScore,
@@ -96,12 +95,12 @@ class ScoreBloc extends BaseBloc<ScoreEvent, ScoreState> {
     });
   }
 
-  int getScore(List<FigureEntity> figures) {
+  int getScore(List<Figure> figures) {
     int score = 0;
     if (figures.isNotEmpty && figures.first.team == TeamEnum.white) {
       final finalWhite = figures.where((figure) => figure.y == 7).toList();
       for (final figure in finalWhite) {
-        score = score + figure.weight;
+        score = score + figure.points;
 
         AppLogger.figureReachedTheEnd(figure);
       }
@@ -109,7 +108,7 @@ class ScoreBloc extends BaseBloc<ScoreEvent, ScoreState> {
     if (figures.isNotEmpty && figures.first.team == TeamEnum.black) {
       final finalBlack = figures.where((figure) => figure.y == 0).toList();
       for (final figure in finalBlack) {
-        score = score + figure.weight;
+        score = score + figure.points;
 
         AppLogger.figureReachedTheEnd(figure);
       }

@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/figure_entity.dart';
 
-import '../../../domain/entities/step_entity.dart';
+import '../../../data/dto/step/step.dart' as s;
 import '../bloc/game_cubit.dart';
 
 class StepWidget extends StatelessWidget {
-  final StepEntity stepEntity;
+  final s.Step step;
   final double cellWidth;
 
   const StepWidget({
     required this.cellWidth,
     super.key,
-    required this.stepEntity,
+    required this.step,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.read<GameCubit>().tapToStep(stepEntity);
+        context.read<GameCubit>().tapToStep(step);
       },
       child: Opacity(
         opacity: 0.6,
@@ -27,7 +26,7 @@ class StepWidget extends StatelessWidget {
           width: cellWidth,
           height: cellWidth,
           decoration: BoxDecoration(
-              color: stepEntity.canKill == null ? Colors.green : Colors.red,
+              color: step.canKill == null ? Colors.green : Colors.red,
               border: Border.all(width: 2)),
         ),
       ),

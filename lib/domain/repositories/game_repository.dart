@@ -1,16 +1,14 @@
-import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/room_entity.dart';
-
-import '../entities/step_entity.dart';
+import '../../data/dto/player/player.dart';
+import '../../data/dto/step/step.dart' as s;
 
 abstract class GameRepository {
   Future<void> userOff();
 
   Future<void> foundOnlinePlayers();
 
-  Future<void> addStep(StepEntity step);
+  Future<void> addStep(s.Step step);
 
-  Stream<StepEntity> getLastStep();
+  Stream<s.Step> getLastStep();
 
-  Future<void> updatePlayerInfo(PlayerEntity player);
+  Future<void> updatePlayerInfo(Player player);
 }

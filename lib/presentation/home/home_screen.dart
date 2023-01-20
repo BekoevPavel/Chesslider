@@ -1,9 +1,7 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/game_type.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_state.dart';
@@ -25,7 +23,9 @@ class HomeScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: AppBar(toolbarHeight: 40, title: const Text('Chesslider'),
+        appBar: AppBar(
+            toolbarHeight: 40,
+            title: const Text('Chesslider'),
             //leading: IconButton(onPressed: () {}, icon: const Icon(Icons.chat)),
             actions: [
               IconButton(

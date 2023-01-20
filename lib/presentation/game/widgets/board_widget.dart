@@ -64,14 +64,14 @@ class BoardWidget extends StatelessWidget {
     double step = (cell - figureSize) / 2;
     return BlocBuilder<GameCubit, GameState>(
       builder: (context, state) {
-        if (state is LoadedGame) {
+        if (state.success) {
           return Stack(
             children: [
               // My figure
               for (int i = 0; i < boardController.whiteFigures.length; i++)
                 Positioned(
-                  left: boardController.whiteFigures[i].figureCoordinaties.x,
-                  top: boardController.whiteFigures[i].figureCoordinaties.y,
+                  left: boardController.whiteFigures[i].coordinates.x,
+                  top: boardController.whiteFigures[i].coordinates.y,
                   child: FigureWidget(
                       cellSize: cell,
                       gameType: gameType,
@@ -81,8 +81,8 @@ class BoardWidget extends StatelessWidget {
               // Other figure
               for (int i = 0; i < boardController.blackFigures.length; i++)
                 Positioned(
-                  left: boardController.blackFigures[i].figureCoordinaties.x,
-                  top: boardController.blackFigures[i].figureCoordinaties.y,
+                  left: boardController.blackFigures[i].coordinates.x,
+                  top: boardController.blackFigures[i].coordinates.y,
                   child: FigureWidget(
                       cellSize: cell,
                       gameType: gameType,
@@ -91,10 +91,10 @@ class BoardWidget extends StatelessWidget {
                 ),
               for (int i = 0; i < boardController.steps.length; i++)
                 Positioned(
-                  left: boardController.steps[i].coordinatiesEntity.x,
-                  top: boardController.steps[i].coordinatiesEntity.y,
+                  left: boardController.steps[i].coordinates.x,
+                  top: boardController.steps[i].coordinates.y,
                   child: StepWidget(
-                      cellWidth: cell, stepEntity: boardController.steps[i]),
+                      cellWidth: cell, step: boardController.steps[i]),
                 ),
             ],
           );
@@ -153,7 +153,6 @@ class BoardPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    // TODO: implement shouldRepaint
     return true;
   }
 }

@@ -29,14 +29,14 @@ class AppLogger {
   //   _logger.i(message);
   // }
 
-  static void selectedFigureLog(FigureEntity figure) {
+  static void selectedFigureLog(Figure figure) {
     _logger.i(
         'Выбрана ${figure.team.name} фигура value: ${figure.value} , x: ${figure.x} , y:${figure.y}');
   }
 
-  static void tapToStep({required StepEntity step}) {
+  static void tapToStep({required s.Step step}) {
     _logger.i(
-        'Сделан шаг ${step.selectedFigure.team.name} фигурой value: ${step.selectedFigure.value} по х: ${step.x} , y: ${step.y}');
+        'Сделан шаг ${step.figure.team.name} фигурой value: ${step.figure.value} по х: ${step.x} , y: ${step.y}');
   }
 
   static void whoseMove() {}
@@ -50,7 +50,7 @@ class AppLogger {
     }
   }
 
-  static void showAllFigure(List<FigureEntity> figures) {
+  static void showAllFigure(List<Figure> figures) {
     for (var f in figures) {
       _logger.d(
           'Фигура ${f.team.name} value ${f.value}, x: ${f.x}, y: ${f.y} ,, ');
@@ -58,17 +58,17 @@ class AppLogger {
   }
 
   static void figuresConflict(
-      FigureEntity my, FigureEntity other, int myValue, int otherValue) {
+      Figure my, Figure other, int myValue, int otherValue) {
     _logger.i(
         'Конфликт: ${my.team.name} ${myValue} vs ${other.team.name} ${otherValue} , x: ${my.x}');
   }
 
-  static void figureReachedTheEnd(FigureEntity figure) {
+  static void figureReachedTheEnd(Figure figure) {
     _logger
         .i('Фигура ${figure.team.name} value: ${figure.value} ДОШЛА ДО КОНЦА');
   }
 
-  static void killFigure(FigureEntity myFigure, FigureEntity otherFigure) {
+  static void killFigure(Figure myFigure, Figure otherFigure) {
     _logger.i(
         'Фигура ${myFigure.team.name} ${myFigure.value} съела фигуру ${otherFigure.team.name} ${otherFigure.value}');
   }

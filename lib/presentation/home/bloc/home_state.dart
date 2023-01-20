@@ -24,7 +24,6 @@ class HomeState extends BaseState {
     TeamEnum? team,
     GameType? gameType,
   }) {
-    // TODO: implement copyWith
     return HomeState(
         status: status ?? BaseStatus.initial,
         navigate: navigate ?? this.navigate,

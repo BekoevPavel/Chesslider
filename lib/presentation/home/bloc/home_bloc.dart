@@ -1,21 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/player_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/room_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/step_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/game_type.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_state.dart';
-import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_event.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_state.dart';
-import 'package:get_it/get_it.dart';
 
 import '../../../core/lib/core.dart';
-import '../../../domain/entities/figure_entity.dart';
+import '../../../data/dto/room/room.dart';
 import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/repositories/game_repository.dart';
 import '../../../domain/repositories/rooms_repository.dart';
@@ -63,7 +56,7 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
       ConnectToRoom event, Emitter<HomeState> emit) async {
     try {
       emit(state.copyWith(status: BaseStatus.loading));
-      RoomEntity room = await _roomRepository.connectToRoom(event.code);
+      Room room = await _roomRepository.connectToRoom(event.code);
 
       AppDependencies().setRoom(room);
       await Future.delayed(const Duration(milliseconds: 250));
@@ -102,7 +95,6 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
     try {
       emit(state.copyWith(
           status: BaseStatus.loading, navigate: AuthNavigate.game));
-      //TODO: Удаление комнаты при выходе из игры
 
       await _roomRepository.exitFromRoom();
       await AppDependencies().removeBoardController();

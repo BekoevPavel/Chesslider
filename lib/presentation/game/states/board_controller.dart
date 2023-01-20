@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/figure_coordinates_entity.dart';
-import 'package:flutter_chesslider_beta0/domain/entities/figure_position_entity.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/states/refery.dart';
 import 'package:flutter_chesslider_beta0/resources/base_game_variable.dart';
 
-import '../../../domain/entities/figure_entity.dart';
-import '../../../domain/entities/step_entity.dart';
+import '../../../data/dto/coordinates/coordinates.dart';
+import '../../../data/dto/figure/figure.dart';
+import '../../../data/dto/step/step.dart' as s;
 
 class BoardController {
   double boardWidth;
@@ -19,33 +18,34 @@ class BoardController {
 
   Refery refery = Refery();
 
-  List<FigureEntity> whiteFigures = [];
-  List<FigureEntity> blackFigures = [];
+  List<Figure> whiteFigures = [];
+  List<Figure> blackFigures = [];
 
-  List<StepEntity> steps = [];
+  List<s.Step> steps = [];
 
-  void tapToStep(StepEntity step) {
-    if (refery.whoseMove == TeamEnum.white) {
-      refery.whoseMove = TeamEnum.black;
-    } else {
-      refery.whoseMove = TeamEnum.white;
-    }
+  void tapToStep(s.Step step) {
+    //TODO: РАзрбочить для оффлайн игры
+    // if (refery.whoseMove == TeamEnum.white) {
+    //   refery.whoseMove = TeamEnum.black;
+    // } else {
+    //   refery.whoseMove = TeamEnum.white;
+    // }
 
-    step.selectedFigure.x = step.x;
-    step.selectedFigure.y = step.y;
-    step.selectedFigure.figureCoordinaties.x = _calculeCoordinate(step.x);
-    step.selectedFigure.figureCoordinaties.y = _calculeCoordinate(step.y);
-    step.selectedFigure.countSteps++;
+    step.figure.x = step.x;
+    step.figure.y = step.y;
+    step.figure.coordinates.x = _calculeCoordinate(step.x);
+    step.figure.coordinates.y = _calculeCoordinate(step.y);
+    step.figure.countSteps++;
 
     bool foundInMyFigures = whiteFigures
-        .where((element) => element.id == step.selectedFigure.id)
+        .where((element) => element.id == step.figure.id)
         .isNotEmpty;
     if (step.canKill == true) {
       whiteFigures.removeWhere(
         (element) {
           if ((element.y == step.y && element.x == step.x) &&
-              step.selectedFigure.team != element.team) {
-            AppLogger.killFigure(step.selectedFigure, element);
+              step.figure.team != element.team) {
+            AppLogger.killFigure(step.figure, element);
             return true;
           }
           return false;
@@ -55,8 +55,8 @@ class BoardController {
         (element) {
           if (element.y == step.y &&
               element.x == step.x &&
-              step.selectedFigure.team != element.team) {
-            AppLogger.killFigure(step.selectedFigure, element);
+              step.figure.team != element.team) {
+            AppLogger.killFigure(step.figure, element);
             return true;
           }
           return false;
@@ -64,22 +64,22 @@ class BoardController {
       );
     }
 
-    whiteFigures.removeWhere((element) => element.id == step.selectedFigure.id);
-    blackFigures.removeWhere((element) => element.id == step.selectedFigure.id);
+    whiteFigures.removeWhere((element) => element.id == step.figure.id);
+    blackFigures.removeWhere((element) => element.id == step.figure.id);
 
     if (foundInMyFigures) {
-      whiteFigures.add(step.selectedFigure);
+      whiteFigures.add(step.figure);
     } else {
-      blackFigures.add(step.selectedFigure);
+      blackFigures.add(step.figure);
     }
     steps.clear();
   }
 
-  void activateSteps(List<StepEntity> newSteps, FigureEntity selectedEntity) {
+  void activateSteps(List<s.Step> newSteps, Figure selectedEntity) {
     steps.clear();
 
     for (var newStep in newSteps) {
-      newStep.coordinatiesEntity = CoordinatiesEntity(
+      newStep.coordinates = Coordinates(
           x: _calculeCoordinateStep(newStep.x),
           y: _calculeCoordinateStep(newStep.y));
 
@@ -102,17 +102,11 @@ class BoardController {
     step = (cell - figureSize) / 2;
     try {
       for (int i = 0; i < 8; i++) {
-        var figure = FigureEntity(
+        var figure = Figure(
             id: i,
             value: i + 1,
-            weight: BaseGameVariables.figureWeight(i + 1),
-            borderColor: Colors.black,
-            color: Colors.white,
-            figureCoordinaties: CoordinatiesEntity(
-              x: _calculeCoordinate(i),
-              y: _calculeCoordinate(0),
-            ),
-            figurePosition: CoordinatiesEntity(
+            points: BaseGameVariables.figureWeight(i + 1),
+            coordinates: Coordinates(
               x: _calculeCoordinate(i),
               y: _calculeCoordinate(0),
             ),
@@ -128,17 +122,11 @@ class BoardController {
       // myFigures[3].figureCoordinaties.x = _calculeCoordinate(myFigures[3].x);
 
       for (int i = 0; i < 8; i++) {
-        var figure = FigureEntity(
+        var figure = Figure(
             id: i + 8,
             value: i + 1,
-            weight: BaseGameVariables.figureWeight(i + 1),
-            borderColor: Colors.white,
-            color: Colors.black,
-            figureCoordinaties: CoordinatiesEntity(
-              x: _calculeCoordinate(i),
-              y: _calculeCoordinate(7),
-            ),
-            figurePosition: CoordinatiesEntity(
+            points: BaseGameVariables.figureWeight(i + 1),
+            coordinates: Coordinates(
               x: _calculeCoordinate(i),
               y: _calculeCoordinate(7),
             ),
@@ -153,17 +141,17 @@ class BoardController {
   }
 
   double _calculeCoordinate(int pos) {
-    return (cell * pos) ;
+    return (cell * pos);
   }
 
   double _calculeCoordinateStep(int pos) {
     return (cell * pos);
   }
 
-  void moveFigure(FigureEntity figureEntity, int x, int y) {
+  void moveFigure(Figure figureEntity, int x, int y) {
     figureEntity.x = x;
     figureEntity.y = y;
-    figureEntity.figureCoordinaties.x = _calculeCoordinate(x);
-    figureEntity.figureCoordinaties.y = _calculeCoordinate(y);
+    figureEntity.coordinates.x = _calculeCoordinate(x);
+    figureEntity.coordinates.y = _calculeCoordinate(y);
   }
 }

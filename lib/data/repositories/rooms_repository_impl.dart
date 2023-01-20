@@ -2,66 +2,51 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/rooms_repository.dart';
-import 'package:get_it/get_it.dart';
 import 'package:otp/otp.dart';
-
-import '../../domain/entities/player_entity.dart';
-import '../../domain/entities/room_entity.dart';
+import '../dto/player/player.dart';
+import '../dto/room/room.dart';
 
 class RoomsRepositoryImpl extends RoomRepository {
   @override
-  Future<RoomEntity> connectToRoom(String code) async {
-    // final room =
-    //     await FirebaseFirestore.instance.collection('rooms').doc('').get();
-
+  Future<Room> connectToRoom(String code) async {
     final room = await FirebaseFirestore.instance
         .collection('rooms')
         .where('id', isEqualTo: code)
         .get();
 
-    final PlayerEntity myUser = AppDependencies().getMyPlayer();
+    print('room: ${room.docs.first.data()}');
+
+    final rumResult = Room.fromJson(room.docs.first.data());
+
+    final Player myUser = AppDependencies().getMyPlayer();
 
     late String enemyID;
     late String stepsID;
-    print('roomData: ${room.docs.first.data()} , ${room.docs.first.id}');
-
-    enemyID = room.docs.first.data()?['playersID'][0];
-    stepsID = room.docs.first.data()?['stepsID'];
 
     await FirebaseFirestore.instance
         .collection('rooms')
         .doc(room.docs.first.id)
         .update({
-      'playersID': [enemyID, myUser.userID]
+      'players': [rumResult.players.first.toJson(), myUser.toJson()]
     });
 
-    final data =
-        await FirebaseFirestore.instance.collection('users').doc(enemyID).get();
-    final enterData = data.data();
-    PlayerEntity player = PlayerEntity.fromFirebase(enterData!);
-
-    return RoomEntity(
-        id: code,
-        players: [myUser, player],
-        stepsPositions: [],
-        firebaseID: room.docs.first.id,
-        stepsID: stepsID);
+    return rumResult.copyWith(players: [rumResult.players.first, myUser]);
   }
 
   @override
   Future<void> createRoom() async {
     final credential = FirebaseAuth.instance.currentUser!;
-    final PlayerEntity myUser = AppDependencies().getMyPlayer();
-    final room = RoomEntity(
+    final Player myUser = AppDependencies().getMyPlayer();
+    final room = Room(
         id: credential.uid,
         players: [myUser],
-        stepsPositions: [],
         firebaseID: '',
-        stepsID: '');
+        stepsID: '',
+        stepsPosition: []);
 
     await FirebaseFirestore.instance
         .collection('rooms')
-        .add(room.toFirebase())
+        .add(room.toJson())
         .then((roomDoc) async {
       var result = OTP.generateTOTPCodeString(
           roomDoc.id, DateTime.now().millisecondsSinceEpoch,
@@ -77,6 +62,8 @@ class RoomsRepositoryImpl extends RoomRepository {
 
       room.id = result.toString();
       room.firebaseID = roomDoc.id;
+      print('firebaseID: ${roomDoc.id}');
+      roomDoc.update({'firebaseID': roomDoc.id});
     });
 
     print('roomID: ${room.firebaseID}');
@@ -104,7 +91,7 @@ class RoomsRepositoryImpl extends RoomRepository {
   }
 
   @override
-  Stream<String?> listenOtherPlayerState() async* {
+  Stream<Player?> listenOtherPlayerState() async* {
     print('listenRoom');
     // TODO: implement listenRoomState
     final currentRoom = AppDependencies().getRoom();
@@ -116,22 +103,18 @@ class RoomsRepositoryImpl extends RoomRepository {
       print('roomInfo: ${i.data()}');
       if (i.data() != null &&
           i.data()?['stepsID'] != null &&
-          i.data()!['playersID'].toString().length > 46) {
+          (i.data()!['players'] as List<dynamic>).length > 1) {
         print('есть новое подключение ');
-        final lst = i.data()?['playersID'] as List<dynamic>;
-        final otherID = lst
-            .where((element) {
-              if (element.toString() !=
-                  FirebaseAuth.instance.currentUser!.uid) {
-                return true;
-              }
-              return false;
-            })
+
+        final remoteRoom = Room.fromJson(i.data()!);
+
+        final Player enemy = remoteRoom.players
+            .where((player) =>
+                player.userID != AppDependencies().getMyPlayer().userID)
             .toList()
-            .first
-            .toString();
-        print('otherID: ${otherID}');
-        yield otherID;
+            .first;
+
+        yield enemy;
         //currentRoom.players.add(PlayerEntity(userID: userID, email: email, username: username, winsCount: winsCount, lossCount: lossCount, drawCount: drawCount, gameSearch: gameSearch, networkStatus: networkStatus, rating: rating))
       }
       if (i.data() == null) {
@@ -143,12 +126,12 @@ class RoomsRepositoryImpl extends RoomRepository {
   }
 
   @override
-  Future<PlayerEntity> getOtherPlayerEntity(String id) async {
+  Future<Player> getOtherPlayerEntity(String id) async {
     print('find other');
     final userInfo =
         await FirebaseFirestore.instance.collection('users').doc(id).get();
 
     print('Other Player: ${userInfo.data()}');
-    return PlayerEntity.fromFirebase(userInfo.data()!);
+    return Player.fromJson(userInfo.data()!);
   }
 }
