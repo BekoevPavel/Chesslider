@@ -11,8 +11,7 @@ part 'player.freezed.dart';
 class Player with _$Player {
   @JsonSerializable(explicitToJson: true)
   factory Player({
-    @JsonKey(name: 'userID1')
-    required final String userID,
+    @JsonKey(name: 'userID1') required final String userID,
     required final String email,
     required final String username,
     required int winsCount,

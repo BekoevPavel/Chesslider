@@ -217,6 +217,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.0"
+  combine:
+    dependency: transitive
+    description:
+      name: combine
+      sha256: ceaa180fa85183457b8b59a2aa496fc273d8058036560496584e146b1fa127bd
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   convert:
     dependency: transitive
     description:
@@ -544,6 +552,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.3"
+  isolate_bloc:
+    dependency: "direct main"
+    description:
+      name: isolate_bloc
+      sha256: "0eb4e2616fc3de700249bfe4f53b7a6b39244ea27310646284c4494a6a436541"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.1"
   js:
     dependency: transitive
     description:
@@ -821,6 +837,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
+  uuid:
+    dependency: transitive
+    description:
+      name: uuid
+      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.7"
   vector_math:
     dependency: transitive
     description:
