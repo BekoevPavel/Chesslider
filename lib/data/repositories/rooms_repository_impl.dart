@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
+import 'package:flutter_chesslider_beta0/core/lib/isolates/base_parse.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/rooms_repository.dart';
 import 'package:otp/otp.dart';
 import '../dto/player/player.dart';
@@ -16,7 +18,8 @@ class RoomsRepositoryImpl extends RoomRepository {
 
     print('room: ${room.docs.first.data()}');
 
-    final rumResult = Room.fromJson(room.docs.first.data());
+    final rumResult =
+        await BaseParse.fromJson(Room.fromJson, room.docs.first.data());
 
     final Player myUser = AppDependencies().getMyPlayer();
 
@@ -86,8 +89,6 @@ class RoomsRepositoryImpl extends RoomRepository {
         .collection('steps')
         .doc(localRoom.stepsID)
         .delete();
-
-    //FirebaseFirestore.instance.collection('rooms').doc(room.id).update({'playersID': []});
   }
 
   @override
@@ -105,8 +106,9 @@ class RoomsRepositoryImpl extends RoomRepository {
           i.data()?['stepsID'] != null &&
           (i.data()!['players'] as List<dynamic>).length > 1) {
         print('есть новое подключение ');
-
-        final remoteRoom = Room.fromJson(i.data()!);
+        //TODO: compute
+        final Room remoteRoom =
+            await BaseParse.fromJson(Room.fromJson, i.data()!);
 
         final Player enemy = remoteRoom.players
             .where((player) =>
@@ -115,7 +117,6 @@ class RoomsRepositoryImpl extends RoomRepository {
             .first;
 
         yield enemy;
-        //currentRoom.players.add(PlayerEntity(userID: userID, email: email, username: username, winsCount: winsCount, lossCount: lossCount, drawCount: drawCount, gameSearch: gameSearch, networkStatus: networkStatus, rating: rating))
       }
       if (i.data() == null) {
         print('room deleted');
@@ -132,6 +133,6 @@ class RoomsRepositoryImpl extends RoomRepository {
         await FirebaseFirestore.instance.collection('users').doc(id).get();
 
     print('Other Player: ${userInfo.data()}');
-    return Player.fromJson(userInfo.data()!);
+    return await BaseParse.fromJson(Player.fromJson, userInfo.data()!);
   }
 }

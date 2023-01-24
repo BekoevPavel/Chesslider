@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
+import 'package:flutter_chesslider_beta0/core/lib/isolates/base_parse.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/network_status.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/game_repository.dart';
 import '../../domain/enums/game_search.dart';
@@ -64,13 +65,14 @@ class GameRepositoryImpl extends GameRepository {
       for (var g in t.docs) {
         if (g.data()['stepsPositions'].toString() != 'null') {
           print('yield');
-          final step = s.Step.fromJson(g.data()['stepsPositions']);
+          //final step = s.Step.fromJson(g.data()['stepsPositions']);
+          final step = await BaseParse.fromJson(
+              s.Step.fromJson, g.data()['stepsPositions']);
           if (step.figure.team !=
               AppDependencies().getBoardController().myTeam) {
-            yield s.Step.fromJson(g.data()['stepsPositions']);
+            yield await BaseParse.fromJson(
+                s.Step.fromJson, g.data()['stepsPositions']);
           }
-
-          //yield s.Step.fromJson(g.data());
         }
       }
     }

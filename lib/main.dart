@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_chesslider_beta0/data/dto/coordinates/coordinates.dart';
 import 'package:flutter_chesslider_beta0/data/dto/figure/figure.dart';
 import 'package:flutter_chesslider_beta0/data/dto/player/player.dart';
@@ -28,7 +30,28 @@ import 'package:http/http.dart' as http;
 import 'core/lib/core.dart';
 import 'firebase_options.dart';
 
+class Photo {
+  int size;
+  int quality;
+
+  Photo(this.quality, this.size);
+}
+
+Photo parsePhotos(Map<String, dynamic>? data) {
+  print('data: ${data!['size']}');
+  return Photo(int.parse(data!['size'].toString()), int.parse(data!['quality'].toString()));
+}
+
+Future<Photo> fetchPhotos() async {
+  final body = {'size': 2, 'quality': 32};
+
+  // Use the compute function to run parsePhotos in a separate isolate.
+  return compute(parsePhotos, body);
+}
+
 void main() async {
+  final photo = await fetchPhotos();
+  print('photo: ${photo.size} ${photo.quality}');
   WidgetsFlutterBinding.ensureInitialized();
   PaintingBinding.instance.imageCache.maximumSizeBytes = 1024 * 1024 * 300;
   await AppDependencies().setDependencies();

@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:ffi';
+import 'dart:isolate';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/game_repository.dart';
@@ -44,7 +47,7 @@ class GameCubit extends Cubit<GameState> {
         _roomRepository = roomRepository,
         super(GameState());
 
-  Future<void> tapToStep(s.Step step) async {
+  Future<void> tapToStep(s.Step step, [bool isEnemyStep = false]) async {
     AppLogger.tapToStep(step: step);
 
     foundFinalStep(step);
@@ -55,9 +58,16 @@ class GameCubit extends Cubit<GameState> {
             ? TeamEnum.black
             : TeamEnum.white;
     _boardController.tapToStep(step);
-    await _gameRepository.addStep(step);
+    //TODO: поменять если не сработает
+    if (isEnemyStep == false) {
+      await _gameRepository.addStep(step);
+    }
+
+
 
     _scoreBloc.add(AddStepEvent(canMove: canMove()));
+
+
 
     // for (var figure in _boardController.whiteFigures) {
     //   showStep(figure);
@@ -65,6 +75,18 @@ class GameCubit extends Cubit<GameState> {
 
     emit(state.copyWith(status: BaseStatus.success));
   }
+
+
+
+  //TODO: Изоляты
+  // Spawns an isolate and waits for the first message
+  Future<Map<String, dynamic>> _parseInBackground() async {
+    final p = ReceivePort();
+    await Isolate.spawn(_background, p.sendPort);
+    return await p.first as Map<String, dynamic>;
+  }
+
+  Future<void> _background(SendPort p) async {}
 
   bool canMove() {
     TeamEnum whoseMove = _boardController.refery.whoseMove;
@@ -399,7 +421,9 @@ class GameCubit extends Cubit<GameState> {
     emit(state.copyWith(status: BaseStatus.loading));
     emit(state.copyWith(status: BaseStatus.success));
     print('start game');
-    getLastStep();
+    //TODO: Если не сработает поменять
+    getLastStep(null);
+   
     _roomRepository.listenOtherPlayerState().listen((player) async {
       // print('eventMY: ${event.}');
       if (player != null) {
@@ -424,7 +448,7 @@ class GameCubit extends Cubit<GameState> {
     }
   }
 
-  Future<void> getLastStep() async {
+  Future<void> getLastStep(dynamic t) async {
     lastStepStream = _gameRepository.getLastStep().listen(
       (event) {
         print('event: ${event.x} ${event.y}');
@@ -455,12 +479,14 @@ class GameCubit extends Cubit<GameState> {
           print('white hod');
           foundFigure = _boardController.whiteFigures
               .firstWhere((element) => element.id == event.figure.id);
-          tapToStep(s.Step(
-              coordinates: Coordinates(x: 0, y: 0),
-              x: event.x,
-              y: event.y,
-              canKill: event.canKill,
-              figure: foundFigure));
+          tapToStep(
+              s.Step(
+                  coordinates: Coordinates(x: 0, y: 0),
+                  x: event.x,
+                  y: event.y,
+                  canKill: event.canKill,
+                  figure: foundFigure),
+              true);
           _boardController.refery.whoseMove = TeamEnum.black;
         }
       },
