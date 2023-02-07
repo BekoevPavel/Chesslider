@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "927644121483",
+    "project_id": "cheider",
+    "storage_bucket": "cheider.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927644121483:android:63d64f786871472822578e",
+        "android_client_info": {
+          "package_name": "com.example.flutter_chesslider_beta0"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "927644121483-aklffmem9c1lamnanq5m1h586ompob8r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsoDEogU7CMK6raVfelGoPhJMkK8qlBjQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "927644121483-aklffmem9c1lamnanq5m1h586ompob8r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "927644121483-379to3gbpb6b2iss8b8dkjteruvecf1j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterChessliderBeta0"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
