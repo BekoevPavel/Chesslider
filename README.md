@@ -1,6 +1,9 @@
 # Chesslider
 ## Cross-platform multiplayer logical game,
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
+old design, working on a new one
+![Иллюстрация к проекту](https://gitlab.com/pablank/chesslider/-/raw/main/readme_images/601833935.jpeg)
+
 
 Chesslider was made by Bekoev team, by using Flutter.
 
@@ -23,7 +26,7 @@ Chesslider was made by Bekoev team, by using Flutter.
   suitable language from the list 🇬🇧, 🇷🇺, 🇪🇸, 🇨🇳
 
 ## Development
-At the moment the application is developed only by [ME](me.kedin.com/in/pavel-bekoev-a60968261)
+At the moment the application is developed only by [ME](https://www.linkedin.com/in/pavel-bekoev-a60968261/)
 
 
 
