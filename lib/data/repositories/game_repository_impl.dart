@@ -29,7 +29,7 @@ class GameRepositoryImpl extends GameRepository {
   Future<void> foundOnlinePlayers() async {
     var fire = FirebaseFirestore.instance
         .collection('users')
-        .where('gameSearch', isEqualTo: 'on');
+        ..where('gameSearch', isEqualTo: 'on');
 
     await for (var players in fire.snapshots()) {
       if (players.docs.isNotEmpty) {

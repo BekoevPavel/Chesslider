@@ -16,8 +16,6 @@ class RoomsRepositoryImpl extends RoomRepository {
         .where('id', isEqualTo: code)
         .get();
 
-    print('room: ${room.docs.first.data()}');
-
     final rumResult =
         await BaseParse.fromJson(Room.fromJson, room.docs.first.data());
 
@@ -54,7 +52,6 @@ class RoomsRepositoryImpl extends RoomRepository {
       var result = OTP.generateTOTPCodeString(
           roomDoc.id, DateTime.now().millisecondsSinceEpoch,
           algorithm: Algorithm.SHA1, length: 6);
-      print('room ID: ${result}');
       roomDoc.update({'id': result});
       await FirebaseFirestore.instance
           .collection('steps')
@@ -65,14 +62,10 @@ class RoomsRepositoryImpl extends RoomRepository {
 
       room.id = result.toString();
       room.firebaseID = roomDoc.id;
-      print('firebaseID: ${roomDoc.id}');
       roomDoc.update({'firebaseID': roomDoc.id});
     });
 
-    print('roomID: ${room.firebaseID}');
-
     AppDependencies().setRoom(room);
-    print('create new room: ${AppDependencies().getRoom().id}');
   }
 
   @override
@@ -93,7 +86,6 @@ class RoomsRepositoryImpl extends RoomRepository {
 
   @override
   Stream<Player?> listenOtherPlayerState() async* {
-    print('listenRoom');
     // TODO: implement listenRoomState
     final currentRoom = AppDependencies().getRoom();
     final wated = FirebaseFirestore.instance
@@ -101,11 +93,10 @@ class RoomsRepositoryImpl extends RoomRepository {
         .doc(currentRoom.firebaseID)
         .snapshots();
     await for (var i in wated) {
-      print('roomInfo: ${i.data()}');
       if (i.data() != null &&
           i.data()?['stepsID'] != null &&
           (i.data()!['players'] as List<dynamic>).length > 1) {
-        print('есть новое подключение ');
+        AppLogger.sendI('Есть новое подключение');
         //TODO: compute
         final Room remoteRoom =
             await BaseParse.fromJson(Room.fromJson, i.data()!);
@@ -119,7 +110,7 @@ class RoomsRepositoryImpl extends RoomRepository {
         yield enemy;
       }
       if (i.data() == null) {
-        print('room deleted');
+        AppLogger.sendI('Другой игрок удалил комнату');
 
         yield null;
       }
@@ -128,11 +119,9 @@ class RoomsRepositoryImpl extends RoomRepository {
 
   @override
   Future<Player> getOtherPlayerEntity(String id) async {
-    print('find other');
     final userInfo =
         await FirebaseFirestore.instance.collection('users').doc(id).get();
 
-    print('Other Player: ${userInfo.data()}');
     return await BaseParse.fromJson(Player.fromJson, userInfo.data()!);
   }
 }

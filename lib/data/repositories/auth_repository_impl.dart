@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/game_search.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/network_status.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -43,7 +46,7 @@ class AuthRepositoryImpl implements AuthRepository {
         drawCount: 0,
         gameSearch: GameSearch.off,
         networkStatus: NetworkStatus.online,
-        rating: 0);
+        rating: 800);
     await FirebaseFirestore.instance
         .collection('users')
         .doc(credential.user!.uid)
@@ -67,16 +70,12 @@ class AuthRepositoryImpl implements AuthRepository {
     final myID = FirebaseAuth.instance.currentUser!.uid;
     var fire = FirebaseFirestore.instance
         .collection('users')
-        .where('userID1', isEqualTo: myID);
+        .where('userID1', isEqualTo: myID)
+        .limit(1);
 
-    await for (var players in fire.snapshots()) {
-      if (players.docs.isNotEmpty) {
-        for (var p in players.docs) {
-          print('p: ${p.data()}');
-          return Player.fromJson(p.data());
-        }
-      }
-    }
-    throw UnimplementedError();
+    var snapshot = await fire.snapshots().first;
+    final json = snapshot.docs.first.data();
+    AppLogger.getMyPlayerData(json);
+    return Player.fromJson(json);
   }
 }

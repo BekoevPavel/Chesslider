@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:ffi';
-import 'dart:isolate';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
 import 'package:flutter_chesslider_beta0/domain/repositories/game_repository.dart';
@@ -17,16 +14,21 @@ import '../../../data/dto/player/player.dart';
 import '../../../data/dto/step/step.dart' as s;
 
 import '../../../domain/enums/team_enum.dart';
+import '../../home/bloc/home_bloc.dart';
 
 class GameState extends BaseState {
-  GameState({super.status = BaseStatus.initial, this.enemyPlayer});
+  GameState({super.status = BaseStatus.initial, this.enemyPlayer, this.isExit});
 
   Player? enemyPlayer;
+  bool? isExit;
 
   @override
-  GameState copyWith({required BaseStatus status, Player? enemyPlayer}) {
+  GameState copyWith(
+      {required BaseStatus status, Player? enemyPlayer, bool? isExit}) {
     return GameState(
-        status: status, enemyPlayer: enemyPlayer ?? this.enemyPlayer);
+        status: status,
+        enemyPlayer: enemyPlayer ?? this.enemyPlayer,
+        isExit: isExit ?? this.isExit);
   }
 }
 
@@ -34,17 +36,19 @@ class GameState extends BaseState {
 class GameCubit extends Cubit<GameState> {
   final GameRepository _gameRepository;
   late StreamSubscription<s.Step> lastStepStream;
+  late StreamSubscription<Player?> listenOtherPlayerStream;
   late BoardController _boardController;
   RoomRepository _roomRepository;
   final ScoreBloc _scoreBloc;
 
   List<s.Step> steps = [];
+  HomeBloc homeBloc;
 
-  GameCubit(GameRepository gameRepository, ScoreBloc scoreBloc,
-      RoomRepository roomRepository)
+  GameCubit(GameRepository gameRepository, RoomRepository roomRepository,
+      ScoreBloc scoreBloc, this.homeBloc)
       : _gameRepository = gameRepository,
-        _scoreBloc = scoreBloc,
         _roomRepository = roomRepository,
+        _scoreBloc = scoreBloc,
         super(GameState());
 
   Future<void> tapToStep(s.Step step, [bool isEnemyStep = false]) async {
@@ -63,11 +67,7 @@ class GameCubit extends Cubit<GameState> {
       await _gameRepository.addStep(step);
     }
 
-
-
     _scoreBloc.add(AddStepEvent(canMove: canMove()));
-
-
 
     // for (var figure in _boardController.whiteFigures) {
     //   showStep(figure);
@@ -75,18 +75,6 @@ class GameCubit extends Cubit<GameState> {
 
     emit(state.copyWith(status: BaseStatus.success));
   }
-
-
-
-  //TODO: Изоляты
-  // Spawns an isolate and waits for the first message
-  Future<Map<String, dynamic>> _parseInBackground() async {
-    final p = ReceivePort();
-    await Isolate.spawn(_background, p.sendPort);
-    return await p.first as Map<String, dynamic>;
-  }
-
-  Future<void> _background(SendPort p) async {}
 
   bool canMove() {
     TeamEnum whoseMove = _boardController.refery.whoseMove;
@@ -305,9 +293,6 @@ class GameCubit extends Cubit<GameState> {
         ..._boardController.blackFigures
       ];
 
-      emit(state.copyWith(status: BaseStatus.loading));
-      emit(state.copyWith(status: BaseStatus.success));
-
       //AppLogger.showAllFigure(finalLst);
       steps = checkActiveSteps(selectedEntity);
       if (_boardController.refery.whoseMove == selectedEntity.team) {
@@ -316,6 +301,8 @@ class GameCubit extends Cubit<GameState> {
           selectedEntity,
         );
       }
+      //emit(state.copyWith(status: BaseStatus.loading));
+      emit(state.copyWith(status: BaseStatus.success));
     }
   }
 
@@ -420,19 +407,26 @@ class GameCubit extends Cubit<GameState> {
     // emit(LoadedGame());
     emit(state.copyWith(status: BaseStatus.loading));
     emit(state.copyWith(status: BaseStatus.success));
-    print('start game');
-    //TODO: Если не сработает поменять
-    getLastStep(null);
-   
-    _roomRepository.listenOtherPlayerState().listen((player) async {
+    getLastStep();
+
+    listenOtherPlayerStream =
+        _roomRepository.listenOtherPlayerState().listen((player) async {
       // print('eventMY: ${event.}');
       if (player != null) {
-        print('found');
-        print('enemy: ${player.userID} ${player.username}');
+        AppLogger.sendI(
+            'Подключился игрок: ${player.username} , id: ${player.userID} rating: ${player.rating}');
 
         //print('PlayerRating: ${player.rating} , ${player.username}');
-        // await AppDependencies().setEnemyPlayer(player);
+        await AppDependencies().setEnemyPlayer(player);
         emit(state.copyWith(status: BaseStatus.success, enemyPlayer: player));
+      }
+      if (player == null) {
+        disposeStream();
+        if (homeBloc.wasExit == false) {
+          emit(
+            state.copyWith(status: BaseStatus.success, isExit: true),
+          );
+        }
       }
     });
   }
@@ -448,10 +442,9 @@ class GameCubit extends Cubit<GameState> {
     }
   }
 
-  Future<void> getLastStep(dynamic t) async {
+  void getLastStep() {
     lastStepStream = _gameRepository.getLastStep().listen(
       (event) {
-        print('event: ${event.x} ${event.y}');
         Figure? foundFigure;
 
         if (event.figure.team == TeamEnum.black &&
@@ -461,10 +454,7 @@ class GameCubit extends Cubit<GameState> {
 
           foundFigure = _boardController.blackFigures
               .firstWhere((element) => element.id == event.figure.id);
-          print('event id: ${event.figure.id}');
-          print('succses');
-          print(
-              'foundedFigure:id  ${foundFigure.id} value: ${foundFigure.value}  team: ${foundFigure.team.name}');
+
           tapToStep(s.Step(
               coordinates: Coordinates(x: 0, y: 0),
               x: event.x,
@@ -493,7 +483,12 @@ class GameCubit extends Cubit<GameState> {
     );
   }
 
-  Future<void> disposeStream() async {
+  void disposeStream() {
+    print('dispose streams');
+
     lastStepStream.cancel();
+    listenOtherPlayerStream.cancel();
+    state.enemyPlayer = null;
+    state.isExit = null;
   }
 }

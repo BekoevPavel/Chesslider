@@ -34,6 +34,10 @@ class AppLogger {
         'Выбрана ${figure.team.name} фигура value: ${figure.value} , x: ${figure.x} , y:${figure.y}');
   }
 
+  static void sendI(dynamic message) {
+    _logger.i(message);
+  }
+
   static void tapToStep({required s.Step step}) {
     _logger.i(
         'Сделан шаг ${step.figure.team.name} фигурой value: ${step.figure.value} по х: ${step.x} , y: ${step.y}');
@@ -71,6 +75,10 @@ class AppLogger {
   static void killFigure(Figure myFigure, Figure otherFigure) {
     _logger.i(
         'Фигура ${myFigure.team.name} ${myFigure.value} съела фигуру ${otherFigure.team.name} ${otherFigure.value}');
+  }
+
+  static void getMyPlayerData(dynamic json) {
+    _logger.i('MyPlayer: $json');
   }
 
   static dynamic _formatJson(dynamic json) {

@@ -2,27 +2,19 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_chesslider_beta0/data/dto/coordinates/coordinates.dart';
-import 'package:flutter_chesslider_beta0/data/dto/figure/figure.dart';
-import 'package:flutter_chesslider_beta0/data/dto/player/player.dart';
-import 'package:flutter_chesslider_beta0/domain/enums/game_search.dart';
-import 'package:flutter_chesslider_beta0/domain/enums/network_status.dart';
-import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
-import 'package:flutter_chesslider_beta0/resources/connected_screen.dart';
+import 'package:flutter_chesslider_beta0/presentation/localization/app_locale.dart';
+import 'package:flutter_chesslider_beta0/presentation/localization/localization.dart';
+import 'package:flutter_chesslider_beta0/presentation/theme/theme_widget.dart';
+import 'package:flutter_chesslider_beta0/resources/app_theme.dart';
+import 'package:flutter_chesslider_beta0/resources/extentions/settings_theme_mode_extension.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:statsfl/statsfl.dart';
 import 'package:auto_route/auto_route.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dart_ipify/dart_ipify.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_chesslider_beta0/data/repositories/game_repository_impl.dart';
-import 'package:flutter_chesslider_beta0/data/repositories/rooms_repository_impl.dart';
 import 'package:flutter_chesslider_beta0/presentation/app_provider/app_provider.dart';
-import 'package:flutter_chesslider_beta0/presentation/game/bloc/game_cubit.dart';
 import 'package:flutter_chesslider_beta0/presentation/router/app_router.dart';
-import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
+
 // Import the generated file
 
 import 'package:http/http.dart' as http;
@@ -30,28 +22,11 @@ import 'package:http/http.dart' as http;
 import 'core/lib/core.dart';
 import 'firebase_options.dart';
 
-class Photo {
-  int size;
-  int quality;
-
-  Photo(this.quality, this.size);
-}
-
-Photo parsePhotos(Map<String, dynamic>? data) {
-  print('data: ${data!['size']}');
-  return Photo(int.parse(data!['size'].toString()), int.parse(data!['quality'].toString()));
-}
-
-Future<Photo> fetchPhotos() async {
-  final body = {'size': 2, 'quality': 32};
-
-  // Use the compute function to run parsePhotos in a separate isolate.
-  return compute(parsePhotos, body);
+_onTranslatedLanguage(Locale? locale) {
+  print('change locale: $locale');
 }
 
 void main() async {
-  final photo = await fetchPhotos();
-  print('photo: ${photo.size} ${photo.quality}');
   WidgetsFlutterBinding.ensureInitialized();
   PaintingBinding.instance.imageCache.maximumSizeBytes = 1024 * 1024 * 300;
   await AppDependencies().setDependencies();
@@ -62,6 +37,8 @@ void main() async {
   } else {
     await Firebase.initializeApp();
   }
+
+  /// the setState function here is a must to add
 
   runApp(
     StatsFl(
@@ -98,6 +75,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+
     super.dispose();
   }
 
@@ -105,6 +83,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    var platformLanguage = Platform.localeName;
+    print(platformLanguage);
+    //ru_US
+    //en_US
+    baseLocalization.init(
+      mapLocales: [
+        const MapLocale('en', AppLocale.EN),
+        const MapLocale('ru', AppLocale.RU),
+      ],
+      initLanguageCode: platformLanguage == 'ru_US' ? 'ru' : 'en',
+    );
+    // baseLocalization.translate('ru');
+
+    baseLocalization.onTranslatedLanguage = _onTranslatedLanguage;
   }
 
   @override
@@ -129,12 +121,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return AppProvider(
-        child: MaterialApp.router(
-      routerDelegate: AutoRouterDelegate(
-        AppRouter(),
-        navigatorObservers: () => [HeroController()],
+        child: ThemeWidget(
+      builder: (themeMode) => MaterialApp.router(
+        theme: AppTheme.mainTheme,
+        themeMode: themeMode.theme,
+        darkTheme: AppTheme.darkTheme,
+        supportedLocales: baseLocalization.supportedLocales,
+        localizationsDelegates: baseLocalization.localizationsDelegates,
+        routerDelegate: AutoRouterDelegate(
+          AppRouter(),
+          navigatorObservers: () => [HeroController()],
+        ),
+        routeInformationParser: AppRouter().defaultRouteParser(),
       ),
-      routeInformationParser: AppRouter().defaultRouteParser(),
     ));
   }
 }
+//TODO: ДОбавить ThemeWidget для контроля тем.

@@ -6,8 +6,12 @@ import 'package:flutter_chesslider_beta0/domain/enums/game_type.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_state.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_event.dart';
+import 'package:flutter_chesslider_beta0/presentation/localization/localization.dart';
 import 'package:flutter_chesslider_beta0/presentation/router/app_router.dart';
+import 'package:flutter_localization/flutter_localization.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 
+import '../localization/app_locale.dart';
 import 'bloc/home_bloc.dart';
 import 'bloc/home_state.dart';
 
@@ -16,6 +20,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('ln: ${baseLocalization.currentLocale}');
     return BlocListener<HomeBloc, HomeState>(
       listener: (context, state) {
         if (state.success && state.navigate == AuthNavigate.localAuth) {
@@ -39,19 +44,23 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TextButton(
-                  onPressed: () {
-                    context.pushRoute(GameRoute(
-                        myTeam: TeamEnum.black, gameType: GameType.offline));
-                  },
-                  child: const Text('Игра на одном телефоне')),
+                  onPressed: null,
+                  //     () {
+                  //   context.pushRoute(GameRoute(
+                  //       myTeam: TeamEnum.black, gameType: GameType.offline));
+                  // },
+                  child: Text(AppLocale.gameOnOneDevice.getString(context))),
               TextButton(
-                  onPressed: () {}, child: const Text('Случайная игра онлайн')),
+                  onPressed: null,
+                  child: Text(AppLocale.randomGame.getString(context))),
               TextButton(
                   onPressed: () {
                     context.pushRoute(const CreateRoomRoute());
                   },
-                  child: const Text('Играть с другом')),
-              TextButton(onPressed: () {}, child: const Text('Турнир')),
+                  child: Text(AppLocale.gameWithFriend.getString(context))),
+              TextButton(
+                  onPressed: null,
+                  child: Text(AppLocale.tournament.getString(context))),
             ],
           ),
         ),

@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/base_bloc/base_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
+import 'package:flutter_chesslider_beta0/data/dto/player/player.dart';
 import 'package:flutter_chesslider_beta0/domain/enums/team_enum.dart';
 import 'package:flutter_chesslider_beta0/presentation/game/states/board_controller.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../data/dto/figure/figure.dart';
+import '../../../domain/repositories/game_repository.dart';
 
 class ScoreEvent {}
 
@@ -59,17 +61,20 @@ class ScoreState extends BaseState {
 
 class ScoreBloc extends BaseBloc<ScoreEvent, ScoreState> {
   late BoardController _boardController;
+  GameRepository _gameRepository;
+  bool draw = false;
+  bool whiteWin = false;
+  bool blackWin = false;
 
-  ScoreBloc() : super(ScoreState(status: BaseStatus.initial)) {
+  ScoreBloc(GameRepository gameRepository)
+      : _gameRepository = gameRepository,
+        super(ScoreState(status: BaseStatus.initial)) {
     on<AddStepEvent>((event, emit) {
       _boardController = GetIt.instance.get<BoardController>();
       emit(state.copyWith(status: BaseStatus.loading));
       final whiteScore = getScore(_boardController.whiteFigures);
       final blackScore = getScore(_boardController.blackFigures);
       print('whiteScore: $whiteScore , blackScore: $blackScore');
-      bool draw = false;
-      bool whiteWin = false;
-      bool blackWin = false;
 
       if (!event.canMove) {
         if (whiteScore == blackScore) {
@@ -82,6 +87,7 @@ class ScoreBloc extends BaseBloc<ScoreEvent, ScoreState> {
           blackWin = true;
           AppLogger.whoWin(TeamEnum.black, whiteScore, blackScore);
         }
+        calculateNewData();
         print('gameEnd');
       }
       emit(state.copyWith(
@@ -93,6 +99,32 @@ class ScoreBloc extends BaseBloc<ScoreEvent, ScoreState> {
           whiteWin: whiteWin,
           draw: draw));
     });
+  }
+
+  void calculateNewData() {
+    Player player = AppDependencies().getMyPlayer();
+
+    if (blackWin && _boardController.myTeam == TeamEnum.black) {
+      print('играю за черных и выйграл');
+      player.winsCount = player.winsCount + 1;
+    }
+    if (blackWin && _boardController.myTeam == TeamEnum.white) {
+      print('играю за белых и проиграл');
+      player.lossCount = player.lossCount + 1;
+    }
+    if (whiteWin && _boardController.myTeam == TeamEnum.black) {
+      print('играю за черных и проиграл');
+      player.lossCount = player.lossCount + 1;
+    }
+    if (whiteWin && _boardController.myTeam == TeamEnum.white) {
+      print('играю за белых и выйграл');
+      player.winsCount = player.winsCount + 1;
+    }
+
+    if (draw) {
+      print('ничья');
+      player.drawCount = player.drawCount + 1;
+    }
   }
 
   int getScore(List<Figure> figures) {

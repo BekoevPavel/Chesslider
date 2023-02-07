@@ -5,7 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_chesslider_beta0/core/lib/core.dart';
 import 'package:flutter_chesslider_beta0/presentation/auth/bloc/auth_state.dart';
 import 'package:flutter_chesslider_beta0/presentation/home/bloc/home_event.dart';
+import 'package:flutter_chesslider_beta0/presentation/localization/app_locale.dart';
 import 'package:flutter_chesslider_beta0/presentation/router/app_router.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 
 import 'bloc/home_bloc.dart';
 import 'bloc/home_state.dart';
@@ -16,18 +18,16 @@ class CreateRoomScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final myUser = AppDependencies().getMyPlayer();
-    print('myUser: ${myUser.username}');
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Играть с другом'),
+        title: Text(AppLocale.gameWithFriend.getString(context)),
       ),
       body: BlocListener<HomeBloc, HomeState>(
         listener: (context, state) {
-          print('state: $state');
           if (state.success && state.navigate == AuthNavigate.game) {
             context.replaceRoute(
                 GameRoute(myTeam: state.team, gameType: state.gameType));
-            print('переход к игре');
           }
         },
         child: Column(
@@ -37,12 +37,12 @@ class CreateRoomScreen extends StatelessWidget {
                   // _dialogBuilder(context);
                   context.read<HomeBloc>().add(HomeCreateRoom());
                 },
-                child: const Text('Создать комнату')),
+                child: Text(AppLocale.createRoom.getString(context))),
             TextButton(
                 onPressed: () {
                   _dialogBuilderConnect(context);
                 },
-                child: const Text('Присоединиться')),
+                child: Text(AppLocale.connectToRoom.getString(context))),
           ],
         ),
       ),

@@ -48,15 +48,13 @@ class SplashBloc extends BaseBloc<SplashEvent, SplashState> {
                     ? AuthNavigate.menu
                     : AuthNavigate.localAuth));
 
-            print(
-                'ID: ${FirebaseAuth.instance.currentUser!.uid} state: ${userState}');
             count = 1;
           }
         }
       } catch (error, stackTrace) {
         handleError(error, stackTrace, emit);
       }
-      print('ID: ${FirebaseAuth.instance.currentUser!.uid}');
+
       // _gameRepository.foundOnlinePlayers();
     });
   }

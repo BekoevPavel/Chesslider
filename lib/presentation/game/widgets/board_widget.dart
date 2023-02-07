@@ -10,13 +10,12 @@ import 'package:get_it/get_it.dart';
 
 import 'figure_widget.dart';
 
-LabeledGlobalKey _board_key = LabeledGlobalKey('board_key1');
-
 class BoardWidget extends StatelessWidget {
   final TeamEnum myTeam;
   final GameType gameType;
+  final LabeledGlobalKey _board_key = LabeledGlobalKey('board_key1');
 
-  const BoardWidget({Key? key, required this.myTeam, required this.gameType})
+  BoardWidget({Key? key, required this.myTeam, required this.gameType})
       : super(key: key);
 
   @override
@@ -42,7 +41,6 @@ class BoardWidget extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             }
-            print('следи сиюда !');
             context
                 .read<GameCubit>()
                 .startGame(snapshot.data! - (padding * 2), myTeam);
@@ -109,12 +107,12 @@ class BoardWidget extends StatelessWidget {
       },
     );
   }
-}
 
-Future<double> getWidth() async {
-  await Future.delayed(const Duration(microseconds: 80));
+  Future<double> getWidth() async {
+    await Future.delayed(const Duration(microseconds: 80));
 
-  return _board_key.currentContext!.size!.width;
+    return _board_key.currentContext!.size!.width;
+  }
 }
 
 class BoardPainter extends CustomPainter {

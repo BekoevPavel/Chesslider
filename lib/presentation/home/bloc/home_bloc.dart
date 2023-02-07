@@ -18,6 +18,7 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
   final AuthRepository _authRepository;
   final GameRepository _gameRepository;
   final RoomRepository _roomRepository;
+  bool wasExit = false;
 
   HomeBloc(AuthRepository authRepository, GameRepository gameRepository,
       RoomRepository roomRepository)
@@ -58,7 +59,7 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
     try {
       emit(state.copyWith(status: BaseStatus.loading));
       Room room = await _roomRepository.connectToRoom(event.code);
-
+      wasExit = false;
       AppDependencies().setRoom(room);
       await Future.delayed(const Duration(milliseconds: 250));
 
@@ -82,6 +83,7 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
         gameType: GameType.online,
         team: TeamEnum.white,
       ));
+      wasExit = false;
       await _roomRepository.createRoom();
 
       emit(state.copyWith(
@@ -96,6 +98,8 @@ class HomeBloc extends BaseBloc<HomeEvent, HomeState> {
     try {
       emit(state.copyWith(
           status: BaseStatus.loading, navigate: AuthNavigate.game));
+
+      wasExit = true;
 
       await _roomRepository.exitFromRoom();
       await AppDependencies().removeBoardController();
